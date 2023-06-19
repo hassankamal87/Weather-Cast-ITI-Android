@@ -1,11 +1,11 @@
-package com.example.noaa.splash
+package com.example.noaa.splash.view
 //the National Oceanic and Atmospheric Administration
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.core.view.postOnAnimationDelayed
 import com.example.noaa.databinding.ActivityMainBinding
-import com.example.noaa.homeactivity.HomeActivity
+import com.example.noaa.homeactivity.view.HomeActivity
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding

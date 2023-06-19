@@ -13,10 +13,10 @@
         android:theme="@style/Theme.NOAA"
         tools:targetApi="31">
         <activity
-            android:name=".homeactivity.HomeActivity"
+            android:name=".homeactivity.view.HomeActivity"
             android:exported="false" />
         <activity
-            android:name=".splash.MainActivity"
+            android:name=".splash.view.MainActivity"
             android:exported="true"
             android:theme="@style/Base.splash">
             <intent-filter>

@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.NOAA" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimaryDark">@color/status_color</item>
+        <item name="colorPrimaryDark">@color/baseColor</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
 
@@ -10,6 +10,22 @@
     <style name="Base.splash" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimaryDark">@color/status_color</item>
         <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+
+
+    <style name="Widget.Material3.BottomNavigationView.ActiveIndicator" parent="">
+        <item name="android:width">@dimen/m3_bottom_nav_item_active_indicator_width</item>
+        <item name="android:height">@dimen/m3_bottom_nav_item_active_indicator_height</item>
+        <item name="marginHorizontal">@dimen/m3_bottom_nav_item_active_indicator_margin_horizontal
+        </item>
+        <item name="shapeAppearance">
+            @style/ShapeAppearance.Material3.NavigationBarView.ActiveIndicator
+        </item>
+        <item name="android:color">?attr/colorSecondaryContainer</item>
+    </style>
+    <style name="App.Custom.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/active_color</item>
     </style>
 </resources>
 
