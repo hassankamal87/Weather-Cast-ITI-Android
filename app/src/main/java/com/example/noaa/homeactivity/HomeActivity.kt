@@ -1,11 +1,12 @@
-package com.example.noaa
-//the National Oceanic and Atmospheric Administration
+package com.example.noaa.homeactivity
+
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.noaa.R
 
-class MainActivity : AppCompatActivity() {
+class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_home)
     }
 }
