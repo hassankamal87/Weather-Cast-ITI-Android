@@ -17,4 +17,17 @@
     <string name="_7">7</string>
     <string name="sunday">Sun</string>
     <string name="_23_13_c">23/13°c</string>
+    <string name="pressure">Pressure</string>
+    <string name="_1021_hpa">1021 hpa</string>
+    <string name="_77">77%</string>
+    <string name="humidity">Humidity</string>
+    <string name="_2_06_m_s">2.06 m/s</string>
+    <string name="wind">Wind</string>
+    <string name="_0">0 %</string>
+    <string name="visibility">Visibility</string>
+    <string name="_6000_m">6000 m</string>
+    <string name="ultra_violet">Ultra Violet</string>
+    <string name="_0_0">0.0</string>
+    <string name="cloud">Cloud</string>
+    <string name="_0percentage">0%</string>
 </resources>

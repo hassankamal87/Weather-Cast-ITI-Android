@@ -3,6 +3,7 @@
     <style name="Base.Theme.NOAA" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimaryDark">@color/baseColor</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:fontFamily">@font/alata_regular</item>
     </style>
 
     <style name="Theme.NOAA" parent="Base.Theme.NOAA" />
@@ -15,5 +16,6 @@
     <style name="App.Custom.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:color">@color/active_color</item>
     </style>
+
 </resources>
 
