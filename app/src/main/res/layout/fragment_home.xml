@@ -1,15 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".home.view.HomeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="home fragment"
-        android:layout_marginStart="100dp" />
 
-</FrameLayout>
+
+    <TextView
+        android:id="@+id/tv_location_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textSize="30sp"
+        android:text="@string/new_delhi"
+        android:textColor="@color/text_color"
+        android:textStyle="bold"
+        android:layout_marginTop="50dp"
+        android:layout_marginStart="30dp"
+        />
+
+    <TextView
+        android:id="@+id/tv_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/tv_location_name"
+        app:layout_constraintBaseline_toBaselineOf="@id/tv_location_name"
+        android:textSize="13sp"
+        android:textColor="@color/text_color"
+        android:layout_marginStart="5dp"
+        android:text="@string/_15_may_2020"
+        />
+
+    <ImageView
+        android:id="@+id/iv_weather"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        app:layout_constraintStart_toStartOf="@id/tv_location_name"
+        app:layout_constraintTop_toBottomOf="@id/tv_location_name"
+        android:src="@drawable/sun"
+        android:scaleType="fitCenter"
+        />
+
+    <TextView
+        android:id="@+id/tv_current_degree"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/iv_weather"
+        app:layout_constraintEnd_toEndOf="@id/iv_weather"
+        android:layout_marginBottom="15dp"
+        android:layout_marginEnd="-9dp"
+        android:text="@string/_28"
+        android:textSize="50dp"
+        android:textColor="@color/text_color"
+        />
+
+    <TextView
+        android:id="@+id/tv_weather_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/tv_current_degree"
+        app:layout_constraintTop_toBottomOf="@id/tv_current_degree"
+        android:text="@string/sunny_day"
+        android:textSize="16sp"
+        android:layout_marginTop="-10dp"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_hours"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_weather_status"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:orientation="horizontal"
+        tools:listitem="@layout/item_hours"
+        android:layout_marginTop="15dp"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_days"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rv_hours"
+        app:layout_constraintBaseline_toBottomOf="parent"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="80dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_days"
+        />
+
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/slider_degree"
+        android:layout_width="450dp"
+        android:layout_height="wrap_content"
+        android:valueFrom="-30.0"
+        android:valueTo="65.0"
+        android:value="30"
+        app:trackColorActive="@color/second_color_yellow"
+        app:trackColorInactive="@color/white"
+        app:thumbColor="@color/second_color_yellow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:thumbElevation="0dp"
+        android:layout_marginStart="140dp"
+        android:layout_marginTop="350dp"
+        android:rotation="270"
+        android:enabled="false"
+        />
+
+    <TextView
+        android:id="@+id/tv_high_degree"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="@string/_30_c"
+        android:textSize="16sp"
+        android:textColor="@color/text_color"
+        android:layout_marginTop="240dp"
+        android:layout_marginEnd="50dp"
+        />
+
+    <TextView
+        android:id="@+id/tv_small_degree"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="@string/_19_c"
+        android:textSize="16sp"
+        android:textColor="@color/text_color"
+        android:layout_marginBottom="180dp"
+        android:layout_marginEnd="50dp"
+        />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

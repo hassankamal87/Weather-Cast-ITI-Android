@@ -3,26 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/homeFragment"
-        android:icon="@drawable/ic_home"
+        android:icon="@drawable/home_ic"
         android:title="@string/home_title"
         android:checkable="true"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/favouriteFragment"
-        android:icon="@drawable/ic_favorite"
+        android:icon="@drawable/fav_ic"
         android:title="@string/favourite_title"
         android:checkable="true"
         app:showAsAction="ifRoom"
         />
     <item
         android:id="@+id/alertFragment"
-        android:icon="@drawable/ic_alarm"
+        android:icon="@drawable/alarm_ic"
         android:title="@string/alert_title"
         android:checkable="true"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/settingFragment"
-        android:icon="@drawable/ic_settings"
+        android:icon="@drawable/setting_ic"
         android:title="@string/setting_title"
         android:checkable="true"
         app:showAsAction="ifRoom"/>

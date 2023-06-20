@@ -7,4 +7,14 @@
     <string name="alert_title">Alert</string>
     <string name="setting_title">Setting</string>
     <string name="noaa_weather">NOAA Weather</string>
+    <string name="_19_c">19°C</string>
+    <string name="_30_c">30°C</string>
+    <string name="_28">28°</string>
+    <string name="new_delhi">New Delhi</string>
+    <string name="_15_may_2020">15 MAY 2020</string>
+    <string name="sunny_day">Sunny Day</string>
+    <string name="am">AM</string>
+    <string name="_7">7</string>
+    <string name="sunday">Sun</string>
+    <string name="_23_13_c">23/13°c</string>
 </resources>
