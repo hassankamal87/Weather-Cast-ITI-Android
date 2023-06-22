@@ -6,6 +6,9 @@
         <item name="android:fontFamily">@font/alata_regular</item>
         <item name="colorOnSurface">@color/second_color_yellow</item>
         <item name="colorPrimary">@color/second_color_yellow</item>
+        <item name="materialCalendarTheme">@style/ThemeOverlay.App.DatePicker</item>
+        <item name="materialTimePickerTheme">@style/ThemeOverlay.App.timePicker</item>
+        <item name="radioButtonStyle">@style/Widget.App.RadioButton</item>
     </style>
 
     <style name="Theme.NOAA" parent="Base.Theme.NOAA" />
@@ -19,5 +22,44 @@
         <item name="android:color">@color/active_color</item>
     </style>
 
+
+
+    <style name="ThemeOverlay.App.DatePicker" parent="@style/ThemeOverlay.Material3.MaterialCalendar">
+        <item name="colorPrimary">@color/second_color_yellow</item>
+        <item name="colorOnPrimary">@color/text_color</item>
+        <item name="colorOnSurface">@color/text_color</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
+        <item name="buttonBarPositiveButtonStyle">@style/TextButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/TextButton</item>
+    </style>
+    <style name="TextButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/text_color</item>
+    </style>
+    <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">cut</item>
+    </style>
+    <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">25dp</item>
+    </style>
+
+    <style name="ThemeOverlay.App.timePicker" parent="@style/ThemeOverlay.Material3.MaterialTimePicker">
+        <item name="colorPrimary">@color/shrine_pink_900</item>
+        <item name="colorOnPrimary">@color/shrine_pink_900</item>
+        <item name="colorOnSurface">@color/text_color</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
+        <item name="buttonBarPositiveButtonStyle">@style/TextButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/TextButton</item>
+    </style>
+
+    <style name="Widget.App.RadioButton" parent="Widget.Material3.CompoundButton.RadioButton">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.RadioButton</item>
+    </style>
+
+    <style name="ThemeOverlay.App.RadioButton" parent="">
+        <item name="colorOnSurface">@color/shrine_pink_900</item>
+        <item name="colorPrimary">@color/shrine_pink_900</item>
+    </style>
 </resources>
 

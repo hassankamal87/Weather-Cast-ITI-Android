@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:backgroundTint="@color/text_color"
+    android:backgroundTint="@color/active_color"
     app:cardCornerRadius="20dp"
     app:cardElevation="3dp"
     app:cardUseCompatPadding="true"
@@ -12,34 +13,47 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingVertical="15dp">
+        android:paddingVertical="10dp">
 
-        <Button
-            android:id="@+id/btn_From"
-            android:layout_width="110dp"
-            android:layout_height="39dp"
-            android:backgroundTint="@color/baseColor"
-            android:clickable="false"
-            android:text="@string/from"
+        <TextView
+            android:id="@+id/title_alert_dialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_alarm"
             android:textColor="@color/text_color"
-            android:textSize="11sp"
-            app:layout_constraintEnd_toStartOf="@+id/btn_to"
-            app:layout_constraintHorizontal_bias="0.5"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_From_alert_dialog"
+            android:layout_width="110dp"
+            android:layout_height="39dp"
+            android:layout_marginTop="15dp"
+            android:gravity="center"
+            android:text="@string/from"
+            android:textColor="@color/text_color"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/tv_to_alert_dialog"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_alert_dialog" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cv_from"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/second_color_yellow"
+            android:backgroundTint="@color/baseColor"
             android:clickable="true"
             app:cardCornerRadius="25dp"
             app:cardElevation="3dp"
             app:cardUseCompatPadding="true"
-            app:layout_constraintEnd_toEndOf="@id/btn_From"
-            app:layout_constraintStart_toStartOf="@id/btn_From"
-            app:layout_constraintTop_toBottomOf="@id/btn_From"
+            app:layout_constraintEnd_toEndOf="@id/tv_From_alert_dialog"
+            app:layout_constraintStart_toStartOf="@id/tv_From_alert_dialog"
+            app:layout_constraintTop_toBottomOf="@id/tv_From_alert_dialog"
             app:rippleColor="@color/text_color"
             app:strokeWidth="0dp">
 
@@ -74,32 +88,32 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <Button
-            android:id="@+id/btn_to"
+        <TextView
+            android:id="@+id/tv_to_alert_dialog"
             android:layout_width="110dp"
             android:layout_height="38dp"
-            android:backgroundTint="@color/baseColor"
-            android:clickable="false"
+            android:gravity="center"
             android:text="@string/to"
             android:textColor="@color/text_color"
-            android:textSize="11sp"
+            android:textSize="18sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/btn_From"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toEndOf="@+id/tv_From_alert_dialog"
+            app:layout_constraintTop_toTopOf="@id/tv_From_alert_dialog" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cv_to"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/second_color_yellow"
+            android:backgroundTint="@color/baseColor"
             android:clickable="true"
             app:cardCornerRadius="25dp"
             app:cardElevation="3dp"
             app:cardUseCompatPadding="true"
-            app:layout_constraintEnd_toEndOf="@id/btn_to"
-            app:layout_constraintStart_toStartOf="@id/btn_to"
-            app:layout_constraintTop_toBottomOf="@id/btn_to"
+            app:layout_constraintEnd_toEndOf="@id/tv_to_alert_dialog"
+            app:layout_constraintStart_toStartOf="@id/tv_to_alert_dialog"
+            app:layout_constraintTop_toBottomOf="@id/tv_to_alert_dialog"
             app:rippleColor="@color/text_color"
             app:strokeWidth="0dp">
 
@@ -139,7 +153,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
-            android:checkedButton="@+id/radio_button_1"
+            android:checkedButton="@+id/radio_alert"
             android:orientation="horizontal"
             android:paddingHorizontal="40dp"
             app:layout_constraintEnd_toEndOf="@id/cv_to"
@@ -147,42 +161,44 @@
             app:layout_constraintTop_toBottomOf="@id/cv_to">
 
             <RadioButton
-                android:id="@+id/radio_alarm"
+                android:id="@+id/radio_alert"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingRight="20dp"
+                android:paddingEnd="20dp"
                 android:text="@string/alert_noS"
-                android:textColor="@color/second_color_yellow" />
+                android:textColor="@color/text_color"
+                tools:ignore="RtlSymmetry" />
 
             <RadioButton
                 android:id="@+id/radio_notification"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="@string/notification"
-                android:textColor="@color/second_color_yellow" />
+                android:textColor="@color/text_color" />
         </RadioGroup>
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btn_save_dialog"
             android:layout_width="0dp"
-            android:layout_height="45dp"
-            android:backgroundTint="@color/baseColor"
+            android:layout_height="48dp"
+            android:backgroundTint="@color/shrine_pink_900"
             android:clickable="true"
+            android:elevation="3dp"
             app:cardCornerRadius="30dp"
             app:layout_constraintEnd_toEndOf="@id/cv_to"
             app:layout_constraintStart_toStartOf="@id/cv_from"
             app:layout_constraintTop_toBottomOf="@id/radioGroup"
-            app:rippleColor="@color/text_color">
+            app:rippleColor="@color/baseColor"
+            app:strokeWidth="0dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/save"
-                android:textColor="@color/text_color"
+                android:textColor="@color/baseColor"
                 android:textSize="20sp"
-                android:textStyle="bold"
-                />
+                android:textStyle="bold" />
 
         </com.google.android.material.card.MaterialCardView>
 

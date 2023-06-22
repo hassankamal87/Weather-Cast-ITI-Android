@@ -8,4 +8,7 @@
     <color name="text_color">#213555</color>
     <color name="second_color">#4F709C</color>
     <color name="second_color_yellow">#D8C4B6</color>
+
+    <color name="shrine_pink_100">#D8C4B6</color>
+    <color name="shrine_pink_900">#817165</color>
 </resources>

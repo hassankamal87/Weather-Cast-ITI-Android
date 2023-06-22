@@ -98,6 +98,7 @@ class AlertFragment : Fragment() {
             MaterialDatePicker.Builder.datePicker()
                 .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
                 .setCalendarConstraints(constraintsBuilder.build())
+                .setTheme(R.style.ThemeOverlay_App_DatePicker)
                 .setTitleText("Select date")
                 .build()
 
@@ -164,7 +165,7 @@ class AlertFragment : Fragment() {
         timePicker.addOnCancelListener {
 
             var selector = ""
-            val minute = currentMinute.toString()
+            val minute = (currentMinute+1).toString()
             val hour = when {
                 currentHour > 12 -> {
                     selector = "PM"
@@ -184,7 +185,7 @@ class AlertFragment : Fragment() {
                 fromMinuteInt = currentMinute
             }else{
                 toHourInt = currentHour
-                toMinuteInt = currentMinute
+                toMinuteInt = currentMinute+1
             }
 
         }
