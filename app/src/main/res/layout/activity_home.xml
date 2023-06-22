@@ -31,6 +31,7 @@
         android:elevation="15dp"
         android:background="@color/baseColor"
         app:itemRippleColor="@color/second_color_yellow"
+        app:itemTextColor="@color/text_color"
         />
 
 

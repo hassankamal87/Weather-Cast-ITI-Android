@@ -149,7 +149,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <RadioGroup
-            android:id="@+id/radioGroup"
+            android:id="@+id/radioGroup_Alert_dialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
@@ -158,7 +158,9 @@
             android:paddingHorizontal="40dp"
             app:layout_constraintEnd_toEndOf="@id/cv_to"
             app:layout_constraintStart_toStartOf="@id/cv_from"
-            app:layout_constraintTop_toBottomOf="@id/cv_to">
+            app:layout_constraintTop_toBottomOf="@id/cv_to"
+            android:theme="@style/Widget.App.RadioButton"
+            >
 
             <RadioButton
                 android:id="@+id/radio_alert"
@@ -187,7 +189,7 @@
             app:cardCornerRadius="30dp"
             app:layout_constraintEnd_toEndOf="@id/cv_to"
             app:layout_constraintStart_toStartOf="@id/cv_from"
-            app:layout_constraintTop_toBottomOf="@id/radioGroup"
+            app:layout_constraintTop_toBottomOf="@id/radioGroup_Alert_dialog"
             app:rippleColor="@color/baseColor"
             app:strokeWidth="0dp">
 

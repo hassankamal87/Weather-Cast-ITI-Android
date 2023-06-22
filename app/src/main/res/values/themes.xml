@@ -8,7 +8,6 @@
         <item name="colorPrimary">@color/second_color_yellow</item>
         <item name="materialCalendarTheme">@style/ThemeOverlay.App.DatePicker</item>
         <item name="materialTimePickerTheme">@style/ThemeOverlay.App.timePicker</item>
-        <item name="radioButtonStyle">@style/Widget.App.RadioButton</item>
     </style>
 
     <style name="Theme.NOAA" parent="Base.Theme.NOAA" />
@@ -61,5 +60,7 @@
         <item name="colorOnSurface">@color/shrine_pink_900</item>
         <item name="colorPrimary">@color/shrine_pink_900</item>
     </style>
+
+
 </resources>
 

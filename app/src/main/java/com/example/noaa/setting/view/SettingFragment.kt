@@ -5,21 +5,21 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import com.example.noaa.R
+import com.example.noaa.databinding.FragmentSettingBinding
 
 
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [SettingFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+
 class SettingFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
+
+    private lateinit var binding: FragmentSettingBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +34,8 @@ class SettingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_setting, container, false)
+        binding = FragmentSettingBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     companion object {
@@ -54,5 +55,21 @@ class SettingFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        cardsAnimation()
+    }
+
+    private fun cardsAnimation(){
+        val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.card_setting_translation)
+        val animation2 = AnimationUtils.loadAnimation(requireContext(), R.anim.card_setting_translation2)
+        val animation3 = AnimationUtils.loadAnimation(requireContext(), R.anim.card_setting_translation3)
+        binding.cvLocation.startAnimation(animation)
+        binding.cvLanguage.startAnimation(animation)
+        binding.cvWind.startAnimation(animation2)
+        binding.cvNotification.startAnimation(animation2)
+        binding.cvTemp.startAnimation(animation3)
     }
 }
