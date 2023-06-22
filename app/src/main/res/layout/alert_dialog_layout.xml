@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:backgroundTint="@color/text_color"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="3dp"
+    app:cardUseCompatPadding="true"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingVertical="15dp">
+
+        <Button
+            android:id="@+id/btn_From"
+            android:layout_width="110dp"
+            android:layout_height="39dp"
+            android:backgroundTint="@color/baseColor"
+            android:clickable="false"
+            android:text="@string/from"
+            android:textColor="@color/text_color"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toStartOf="@+id/btn_to"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_from"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/second_color_yellow"
+            android:clickable="true"
+            app:cardCornerRadius="25dp"
+            app:cardElevation="3dp"
+            app:cardUseCompatPadding="true"
+            app:layout_constraintEnd_toEndOf="@id/btn_From"
+            app:layout_constraintStart_toStartOf="@id/btn_From"
+            app:layout_constraintTop_toBottomOf="@id/btn_From"
+            app:rippleColor="@color/text_color"
+            app:strokeWidth="0dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="27dp"
+                android:paddingVertical="20dp">
+
+                <TextView
+                    android:id="@+id/tv_from_time_dialog"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/_3_58_am"
+                    android:textColor="@color/text_color"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_from_date_dialog"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/_15_may_2020"
+                    android:textColor="@color/text_color"
+                    android:textSize="11sp"
+                    app:layout_constraintEnd_toEndOf="@id/tv_from_time_dialog"
+                    app:layout_constraintStart_toStartOf="@id/tv_from_time_dialog"
+                    app:layout_constraintTop_toBottomOf="@id/tv_from_time_dialog" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <Button
+            android:id="@+id/btn_to"
+            android:layout_width="110dp"
+            android:layout_height="38dp"
+            android:backgroundTint="@color/baseColor"
+            android:clickable="false"
+            android:text="@string/to"
+            android:textColor="@color/text_color"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/btn_From"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_to"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/second_color_yellow"
+            android:clickable="true"
+            app:cardCornerRadius="25dp"
+            app:cardElevation="3dp"
+            app:cardUseCompatPadding="true"
+            app:layout_constraintEnd_toEndOf="@id/btn_to"
+            app:layout_constraintStart_toStartOf="@id/btn_to"
+            app:layout_constraintTop_toBottomOf="@id/btn_to"
+            app:rippleColor="@color/text_color"
+            app:strokeWidth="0dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="27dp"
+                android:paddingVertical="20dp">
+
+                <TextView
+                    android:id="@+id/tv_to_time_dialog"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/_3_58_am"
+                    android:textColor="@color/text_color"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_to_date_dialog"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/_15_may_2020"
+                    android:textColor="@color/text_color"
+                    android:textSize="11sp"
+                    app:layout_constraintEnd_toEndOf="@id/tv_to_time_dialog"
+                    app:layout_constraintStart_toStartOf="@id/tv_to_time_dialog"
+                    app:layout_constraintTop_toBottomOf="@id/tv_to_time_dialog" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <RadioGroup
+            android:id="@+id/radioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:checkedButton="@+id/radio_button_1"
+            android:orientation="horizontal"
+            android:paddingHorizontal="40dp"
+            app:layout_constraintEnd_toEndOf="@id/cv_to"
+            app:layout_constraintStart_toStartOf="@id/cv_from"
+            app:layout_constraintTop_toBottomOf="@id/cv_to">
+
+            <RadioButton
+                android:id="@+id/radio_alarm"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingRight="20dp"
+                android:text="@string/alert_noS"
+                android:textColor="@color/second_color_yellow" />
+
+            <RadioButton
+                android:id="@+id/radio_notification"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/notification"
+                android:textColor="@color/second_color_yellow" />
+        </RadioGroup>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btn_save_dialog"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:backgroundTint="@color/baseColor"
+            android:clickable="true"
+            app:cardCornerRadius="30dp"
+            app:layout_constraintEnd_toEndOf="@id/cv_to"
+            app:layout_constraintStart_toStartOf="@id/cv_from"
+            app:layout_constraintTop_toBottomOf="@id/radioGroup"
+            app:rippleColor="@color/text_color">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/save"
+                android:textColor="@color/text_color"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                />
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</com.google.android.material.card.MaterialCardView>
