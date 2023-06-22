@@ -4,7 +4,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="favourite_title">Favourite</string>
     <string name="home_title">Home</string>
-    <string name="alert_title">Alert</string>
+    <string name="alert_title">Alerts</string>
     <string name="setting_title">Setting</string>
     <string name="noaa_weather">NOAA Weather</string>
     <string name="_19_c">19°C</string>
@@ -30,4 +30,11 @@
     <string name="_0_0">0.0</string>
     <string name="cloud">Cloud</string>
     <string name="_0percentage">0%</string>
+    <string name="_3_58_am">3:58 AM</string>
+    <string name="to">TO</string>
+    <string name="add_alert">Add Alert</string>
+    <string name="from">FROM</string>
+    <string name="alert_noS">Alert</string>
+    <string name="notification">Notification</string>
+    <string name="save">SAVE</string>
 </resources>

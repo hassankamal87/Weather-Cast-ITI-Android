@@ -4,6 +4,8 @@
         <item name="colorPrimaryDark">@color/baseColor</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:fontFamily">@font/alata_regular</item>
+        <item name="colorOnSurface">@color/second_color_yellow</item>
+        <item name="colorPrimary">@color/second_color_yellow</item>
     </style>
 
     <style name="Theme.NOAA" parent="Base.Theme.NOAA" />
