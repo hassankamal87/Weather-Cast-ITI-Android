@@ -53,4 +53,7 @@ dependencies {
     def nav_version = "2.4.0-alpha10"
     implementation "androidx.navigation:navigation-fragment-ktx:2.7.0-beta01"
     implementation "androidx.navigation:navigation-ui-ktx:2.7.0-beta01"
+
+    //google location services
+    implementation 'com.google.android.gms:play-services-location:17.1.0'
 }
