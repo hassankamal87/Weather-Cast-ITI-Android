@@ -2,11 +2,9 @@ package com.example.services.location
 
 import android.annotation.SuppressLint
 import android.os.Looper
-import android.util.Log
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
-
 
 class LocationClient private constructor(
     private val fusedLocationClient: FusedLocationProviderClient,
