@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:backgroundTint="@color/active_color"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="3dp"
+    app:cardUseCompatPadding="true"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="15dp">
+
+            <TextView
+                android:id="@+id/tv_initialSetting_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:text="@string/setting_title"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/text_color"
+                android:textSize="25sp"
+                android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_location_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_initialSetting_title"
+            android:paddingTop="18dp"
+            android:layout_marginStart="20dp"
+            android:text="@string/location"
+            android:textColor="@color/text_color"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/radioGroup_setting_location_initial"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:layout_marginStart="60dp"
+                android:layout_marginEnd="15dp"
+                android:checkedButton="@+id/radio_setting_gps_initial"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tv_location_title"
+                app:layout_constraintTop_toBottomOf="@id/tv_initialSetting_title"
+                android:theme="@style/Widget.App.RadioButton"
+                android:orientation="horizontal">
+
+
+                <RadioButton
+                    android:id="@+id/radio_setting_gps_initial"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/gps"
+                    android:textColor="@color/text_color"
+                    android:textSize="18sp"
+                    />
+
+                <RadioButton
+                    android:id="@+id/radio_setting_map_initial"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/map"
+                    android:textColor="@color/text_color"
+                    android:textSize="18sp" />
+            </RadioGroup>
+
+        <Button
+            android:id="@+id/btn_ok_initial"
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_location_title"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="@color/text_color"
+            android:text="@string/ok"
+            android:textSize="20sp"
+            android:elevation="6dp"
+            />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

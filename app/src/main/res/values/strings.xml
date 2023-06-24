@@ -54,4 +54,5 @@
     <string name="celsius">Celsius</string>
     <string name="kelvin">Kelvin</string>
     <string name="fahrenheit">Fahrenheit</string>
+    <string name="ok">OK</string>
 </resources>

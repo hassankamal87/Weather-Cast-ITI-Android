@@ -43,4 +43,8 @@ class HomeFragment : Fragment() {
         val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.place_changer)
         binding.ivWeather.startAnimation(animation)
     }
+
+   /* fun onGetCoordinate(coordinate: Coordinate){
+
+    }*/
 }
