@@ -4,70 +4,73 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.ui.NavigationUI
 import com.example.noaa.R
 import com.example.noaa.databinding.ActivityHomeBinding
+import com.example.noaa.home.view.HomeFragment
+import com.example.noaa.homeactivity.viewmodel.HomeActivityViewModel
+import com.example.noaa.homeactivity.viewmodel.HomeActivityViewModelFactory
+import com.example.noaa.utilities.Constants
 import com.example.services.location.LocationClient
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 
 
-const val TAG = "hassankamal"
+public const val TAG = "hassankamal"
 const val My_LOCATION_PERMISSION_ID = 5005
+
 class HomeActivity : AppCompatActivity() {
     lateinit var binding: ActivityHomeBinding
     private lateinit var navController: NavController
 
-    lateinit var fusedClient: FusedLocationProviderClient
-    lateinit var locationClient: LocationClient
+    lateinit var homeActivityViewModelFactory: HomeActivityViewModelFactory
+    lateinit var activityViewModel: HomeActivityViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         navController = Navigation.findNavController(this, R.id.nav_host_fragment)
         NavigationUI.setupWithNavController(binding.bottomNavigation, navController)
 
-        fusedClient = LocationServices.getFusedLocationProviderClient(this)
-        locationClient = LocationClient.getInstance(fusedClient, locationCallBack)
 
-        Log.d(TAG, "onCreate: ${locationClient.hashCode()}")
+        homeActivityViewModelFactory = HomeActivityViewModelFactory(
+            LocationClient.getInstance(
+                LocationServices.getFusedLocationProviderClient(this)
+            )
+        )
+        activityViewModel =
+            ViewModelProvider(this, homeActivityViewModelFactory)[HomeActivityViewModel::class.java]
+
+        activityViewModel.locationStatusLiveData.observe(this){
+            when(it){
+                Constants.SHOW_DIALOG -> showLocationDialog()
+                Constants.REQUEST_PERMISSION -> requestPermissions()
+            }
+        }
+
+        activityViewModel.coordinateLiveData.observe(this){
+            Log.d(TAG, "latitude -> ${it.latitude}")
+            Log.d(TAG, "longitude -> ${it.longitude}")
+        }
     }
 
 
     override fun onResume() {
         super.onResume()
-        if (checkPermission()) {
-            if (isLocationIsEnabled()) {
-                locationClient.getCurrentLocation()
-            } else {
-                showLocationDialog()
-            }
-        } else {
-            requestPermissions()
-        }
+        Log.d(TAG, "onResume: ")
+        activityViewModel.getLocation(this)
     }
 
-    private fun isLocationIsEnabled(): Boolean {
-        val locationManager: LocationManager =
-            getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-    }
 
     private fun requestPermissions() {
+        Log.d(TAG, "requestPermissions: ")
         ActivityCompat.requestPermissions(
             this, arrayOf(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -77,23 +80,9 @@ class HomeActivity : AppCompatActivity() {
         )
     }
 
-    private fun checkPermission(): Boolean {
-        var result = false
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            result = true
-        }
-        return result
-    }
 
     private fun showLocationDialog() {
+        Log.d(TAG, "showLocationDialog: ")
         val builder = AlertDialog.Builder(this)
         builder.setMessage("Location services are disabled. Do you want to enable them?")
             .setCancelable(false)
@@ -108,18 +97,5 @@ class HomeActivity : AppCompatActivity() {
             }
         val dialog = builder.create()
         dialog.show()
-    }
-
-    private val locationCallBack: LocationCallback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult) {
-            super.onLocationResult(locationResult)
-            val lastLocation = locationResult.lastLocation
-
-            val latitude = lastLocation.latitude
-            val longitude = lastLocation.longitude
-
-            Log.d(TAG, "lat -> $latitude ### long -> $longitude")
-
-        }
     }
 }
