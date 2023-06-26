@@ -25,8 +25,10 @@ import com.example.noaa.databinding.ActivityHomeBinding
 import com.example.noaa.databinding.InitialDialogLayoutBinding
 import com.example.noaa.homeactivity.viewmodel.HomeActivityViewModel
 import com.example.noaa.homeactivity.viewmodel.HomeActivityViewModelFactory
+import com.example.noaa.model.Repo
 import com.example.noaa.utilities.Constants
 import com.example.noaa.services.location.LocationClient
+import com.example.noaa.services.network.RemoteSource
 import com.google.android.gms.location.LocationServices
 
 
@@ -39,7 +41,7 @@ class HomeActivity : AppCompatActivity() {
     private var checkedBtn: Int = 0
     private lateinit var navController: NavController
 
-    lateinit var homeActivityViewModelFactory: HomeActivityViewModelFactory
+    private lateinit var homeActivityViewModelFactory: HomeActivityViewModelFactory
     lateinit var activityViewModel: HomeActivityViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,8 +52,10 @@ class HomeActivity : AppCompatActivity() {
         bindingInitialLayoutDialog = InitialDialogLayoutBinding.inflate(layoutInflater)
 
         homeActivityViewModelFactory = HomeActivityViewModelFactory(
-            LocationClient.getInstance(
-                LocationServices.getFusedLocationProviderClient(this)
+            Repo.getInstance(
+                RemoteSource, LocationClient.getInstance(
+                    LocationServices.getFusedLocationProviderClient(this)
+                )
             ), getSharedPreferences(Constants.SETTING, MODE_PRIVATE)
         )
         activityViewModel =
@@ -76,8 +80,6 @@ class HomeActivity : AppCompatActivity() {
     }
 
 
-
-
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "onResume: ")
@@ -94,7 +96,6 @@ class HomeActivity : AppCompatActivity() {
 //        val intent = Intent(Intent.ACTION_PICK, Uri.parse(geoUri))
 //        startActivityForResult(intent,Constants.REQUEST_CODE_MAP)
     }
-
 
 
     private fun requestPermissions() {
