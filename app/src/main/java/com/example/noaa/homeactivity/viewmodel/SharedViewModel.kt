@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class HomeActivityViewModel(
+class SharedViewModel(
     private val repo: RepoInterface,
     private val sharedPreferences: SharedPreferences
 ) : ViewModel() {

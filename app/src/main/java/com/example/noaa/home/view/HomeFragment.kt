@@ -1,6 +1,7 @@
 package com.example.noaa.home.view
 
-import android.content.Context
+import android.annotation.SuppressLint
+import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -14,8 +15,8 @@ import androidx.lifecycle.lifecycleScope
 import com.example.noaa.R
 import com.example.noaa.databinding.FragmentHomeBinding
 import com.example.noaa.homeactivity.view.TAG
-import com.example.noaa.homeactivity.viewmodel.HomeActivityViewModel
-import com.example.noaa.homeactivity.viewmodel.HomeActivityViewModelFactory
+import com.example.noaa.homeactivity.viewmodel.SharedViewModel
+import com.example.noaa.homeactivity.viewmodel.SharedViewModelFactory
 import com.example.noaa.model.Coordinate
 import com.example.noaa.model.Repo
 import com.example.noaa.model.WeatherResponse
@@ -23,8 +24,8 @@ import com.example.noaa.services.location.LocationClient
 import com.example.noaa.services.network.ApiState
 import com.example.noaa.services.network.RemoteSource
 import com.example.noaa.utilities.Constants
+import com.example.noaa.utilities.Functions
 import com.google.android.gms.location.LocationServices
-import com.google.android.material.slider.LabelFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,7 +38,7 @@ class HomeFragment : Fragment() {
 
 
     private lateinit var binding: FragmentHomeBinding
-    private lateinit var homeActivityViewModel: HomeActivityViewModel
+    private lateinit var sharedViewModel: SharedViewModel
     private lateinit var hourlyRecyclerAdapter: HourlyRecyclerAdapter
     private lateinit var dailyRecyclerAdapter: DailyRecyclerAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,14 +57,14 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        iconAnimation()
+
 
         hourlyRecyclerAdapter = HourlyRecyclerAdapter()
         binding.rvHours.adapter = hourlyRecyclerAdapter
 
         dailyRecyclerAdapter = DailyRecyclerAdapter()
         binding.rvDays.adapter = dailyRecyclerAdapter
-        val factory = HomeActivityViewModelFactory(
+        val factory = SharedViewModelFactory(
             Repo.getInstance(
                 RemoteSource, LocationClient.getInstance(
                     LocationServices.getFusedLocationProviderClient(view.context)
@@ -74,17 +75,19 @@ class HomeFragment : Fragment() {
             )
         )
 
-        homeActivityViewModel = ViewModelProvider(this, factory)[HomeActivityViewModel::class.java]
+        sharedViewModel = ViewModelProvider(requireActivity(), factory)[SharedViewModel::class.java]
+        Log.w(TAG, "fragment ViewModel ${sharedViewModel.hashCode()}")
 
-        homeActivityViewModel.coordinateLiveData.observe(viewLifecycleOwner) {
-            Log.d(TAG, "onViewCreated: from fragment ${it.latitude}")
-            Log.d(TAG, "onViewCreated: from fragment ${it.longitude}")
+        sharedViewModel.coordinateLiveData.observe(viewLifecycleOwner) {
+            Log.w(TAG, "onViewCreated: from fragment ${it.latitude}")
+            Log.w(TAG, "onViewCreated: from fragment ${it.longitude}")
+            sharedViewModel.getWeatherData(Coordinate(it.latitude, it.longitude), "en")
+
         }
 
-        homeActivityViewModel.getWeatherData(Coordinate(28.0871, 30.7618), "en")
 
         lifecycleScope.launch(Dispatchers.IO) {
-            homeActivityViewModel.weatherResponseStateFlow.collect {
+            sharedViewModel.weatherResponseStateFlow.collect {
                 when (it) {
                     is ApiState.Success -> {
                         Log.d(TAG, "onViewCreated: ${it.weatherResponse}")
@@ -95,7 +98,7 @@ class HomeFragment : Fragment() {
 
                     is ApiState.Loading -> {
                         // show progress bar
-
+                        binding.loadingLottie.visibility = View.VISIBLE
                     }
 
                     else -> {
@@ -117,12 +120,23 @@ class HomeFragment : Fragment() {
 
      }*/
 
+    @SuppressLint("SetTextI18n")
     private fun setDataToViews(weatherResponse: WeatherResponse) {
+        setLocationNameByGeoCoder(Coordinate(weatherResponse.latitude, weatherResponse.longitude))
+        Functions.setIcon(weatherResponse.currentDay.weather[0].icon, binding.ivWeather)
+
+        makeViewsVisible()
         binding.apply {
-            tvLocationName.text = weatherResponse.zoneName
+            //tvLocationName.text = weatherResponse.zoneName
             tvDate.text = fromUnixToString(weatherResponse.currentDay.dt)
             tvCurrentDegree.text = String.format("%.1f°C", weatherResponse.currentDay.temp)
             tvWeatherStatus.text = weatherResponse.currentDay.weather[0].description
+            tvDynamicPressure.text = "${weatherResponse.currentDay.pressure} hpa"
+            tvDynamicHumidity.text = "${weatherResponse.currentDay.humidity} %"
+            tvDynamicWind.text = "${weatherResponse.currentDay.wind_speed} %"
+            tvDynamicCloud.text = "${weatherResponse.currentDay.clouds} %"
+            tvDynamicViolet.text = "${weatherResponse.currentDay.uvi}"
+            tvDynamicVisibility.text = "${weatherResponse.currentDay.visibility} m"
             hourlyRecyclerAdapter.submitList(weatherResponse.hours)
             dailyRecyclerAdapter.submitList(weatherResponse.days.filterIndexed { index, _ -> index != 0 })
         }
@@ -133,5 +147,30 @@ class HomeFragment : Fragment() {
         val sdf = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
         val date = Date(time * 1000L)
         return sdf.format(date).uppercase(Locale.ROOT)
+    }
+
+    private fun makeViewsVisible() {
+        binding.apply {
+            loadingLottie.visibility = View.GONE
+            tvLocationName.visibility = View.VISIBLE
+            ivWeather.visibility = View.VISIBLE
+            tvDate.visibility = View.VISIBLE
+            tvCurrentDegree.visibility = View.VISIBLE
+            tvWeatherStatus.visibility = View.VISIBLE
+            cvDetails.visibility = View.VISIBLE
+            rvDays.visibility = View.VISIBLE
+            rvHours.visibility = View.VISIBLE
+        }
+        iconAnimation()
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun setLocationNameByGeoCoder(coordinate: Coordinate) {
+        val x =
+            Geocoder(requireContext()).getFromLocation(coordinate.latitude, coordinate.longitude, 5)
+        if (x != null) {
+            binding.tvLocationName.text =
+                x[0].countryName + "/" + x[0].adminArea.replace("Governorate", "")
+        }
     }
 }

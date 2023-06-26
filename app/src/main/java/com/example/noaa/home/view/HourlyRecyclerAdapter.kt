@@ -3,11 +3,14 @@ package com.example.noaa.home.view
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.noaa.R
 import com.example.noaa.databinding.ItemHoursBinding
 import com.example.noaa.model.Hourly
+import com.example.noaa.utilities.Functions
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -32,7 +35,9 @@ class HourlyRecyclerAdapter :
             binding.tvDateHours.text = formatDateStamp(currentItem.dt)
             binding.tvTimeHours.text = formatTimestamp(currentItem.dt)
             binding.tvDegreeHours.text = String.format("%.0f°C", currentItem.temp)
+            Functions.setIcon(currentItem.weather[0].icon, binding.ivStatusIconHours)
         }
+
 
     }
 
@@ -67,4 +72,5 @@ class RecyclerDiffUtil : DiffUtil.ItemCallback<Hourly>() {
     override fun areContentsTheSame(oldItem: Hourly, newItem: Hourly): Boolean {
         return oldItem == newItem
     }
+
 }

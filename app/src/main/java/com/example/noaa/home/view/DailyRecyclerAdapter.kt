@@ -3,11 +3,14 @@ package com.example.noaa.home.view
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.noaa.R
 import com.example.noaa.databinding.ItemDaysBinding
 import com.example.noaa.model.Daily
+import com.example.noaa.utilities.Functions
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -33,7 +36,7 @@ class DailyRecyclerAdapter :
                 tvDayDays.text = formatDayOfWeek(currentItem.dt)
                 tvStatusDays.text = currentItem.weather[0].description
                 tvDegreeDays.text = String.format("%.0f/%.0f°C",currentItem.temp.max,currentItem.temp.min)
-
+                Functions.setIcon(currentItem.weather[0].icon, ivIconDays)
             }
 
         }

@@ -9,6 +9,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
@@ -16,7 +17,7 @@ class LocationClient private constructor(
     private val fusedLocationClient: FusedLocationProviderClient
 ): LocationClientInterface {
 
-    private val sharedFlow: MutableSharedFlow<Coordinate> = MutableSharedFlow()
+    private val sharedFlow: MutableSharedFlow<Coordinate> = MutableSharedFlow(replay = 1, extraBufferCapacity = 1)
     companion object {
         private var instance: LocationClient? = null
 
@@ -57,9 +58,10 @@ class LocationClient private constructor(
             Log.d(TAG, "onLocationResult: $lastLocation")
             val latitude = lastLocation.latitude
             val longitude = lastLocation.longitude
-            Log.d(TAG, "lat -> $latitude ### long -> $longitude")
 
-            sharedFlow.tryEmit(Coordinate(latitude, longitude))
+
+            val result = sharedFlow.tryEmit(Coordinate(latitude, longitude))
+            Log.w(TAG, "onLocationResult: $result")
         }
     }
 

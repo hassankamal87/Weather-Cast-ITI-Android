@@ -5,12 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.noaa.R
 import com.example.noaa.databinding.FragmentFavouriteBinding
-import com.example.noaa.model.Coordinate
-
-
-
 
 
 class FavouriteFragment : Fragment() {
