@@ -25,4 +25,9 @@
         android:name="com.example.noaa.setting.view.SettingFragment"
         android:label="Setting"
         tools:layout="@layout/fragment_setting" />
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.example.noaa.map.view.MapFragment"
+        android:label="fragment_map"
+        tools:layout="@layout/fragment_map" />
 </navigation>
