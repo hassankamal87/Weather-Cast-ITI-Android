@@ -36,10 +36,25 @@ class SharedViewModel(
     val weatherResponseStateFlow: StateFlow<ApiState>
         get() = _weatherResponseMutableStateFlow
 
+    private val _savedLocationMutableStateFlow: MutableStateFlow<Coordinate> = MutableStateFlow(Coordinate(0.0,0.0))
+    val savedLocationStateFlow: StateFlow<Coordinate>
+        get() = _savedLocationMutableStateFlow
 
     fun setLocationChoice(choice: String) {
         sharedPreferences.edit().putString(Constants.LOCATION, choice).apply()
     }
+
+    fun setLocationData(coordinate: Coordinate){
+        sharedPreferences.edit().putFloat(Constants.LATITUDE, coordinate.latitude.toFloat()).apply()
+        sharedPreferences.edit().putFloat(Constants.LONGITUDE, coordinate.longitude.toFloat()).apply()
+    }
+
+    fun getLocationData(){
+        val lat = sharedPreferences.getFloat(Constants.LATITUDE, 0.0f)
+        val long = sharedPreferences.getFloat(Constants.LONGITUDE, 0.0f)
+        _savedLocationMutableStateFlow.value = Coordinate(lat.toDouble(), long.toDouble())
+    }
+
 
     fun getLocation(context: Context) {
 

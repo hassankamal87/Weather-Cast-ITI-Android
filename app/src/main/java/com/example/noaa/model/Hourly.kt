@@ -6,7 +6,7 @@ data class Hourly(
     val dt: Int,
     val feels_like: Double,
     val humidity: Int,
-    val pop: Int,
+    val pop: Double,
     val pressure: Int,
     val temp: Double,
     val uvi: Double,

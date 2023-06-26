@@ -27,6 +27,7 @@ import com.example.noaa.utilities.Constants
 import com.example.noaa.utilities.Functions
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -76,7 +77,7 @@ class HomeFragment : Fragment() {
         )
 
         sharedViewModel = ViewModelProvider(requireActivity(), factory)[SharedViewModel::class.java]
-        Log.w(TAG, "fragment ViewModel ${sharedViewModel.hashCode()}")
+
 
         sharedViewModel.coordinateLiveData.observe(viewLifecycleOwner) {
             Log.w(TAG, "onViewCreated: from fragment ${it.latitude}")
@@ -87,7 +88,7 @@ class HomeFragment : Fragment() {
 
 
         lifecycleScope.launch(Dispatchers.IO) {
-            sharedViewModel.weatherResponseStateFlow.collect {
+            sharedViewModel.weatherResponseStateFlow.collectLatest {
                 when (it) {
                     is ApiState.Success -> {
                         Log.d(TAG, "onViewCreated: ${it.weatherResponse}")
@@ -116,18 +117,14 @@ class HomeFragment : Fragment() {
         binding.ivWeather.startAnimation(animation)
     }
 
-    /* fun onGetCoordinate(coordinate: Coordinate){
-
-     }*/
 
     @SuppressLint("SetTextI18n")
     private fun setDataToViews(weatherResponse: WeatherResponse) {
-        setLocationNameByGeoCoder(Coordinate(weatherResponse.latitude, weatherResponse.longitude))
+        setLocationNameByGeoCoder(weatherResponse)
         Functions.setIcon(weatherResponse.currentDay.weather[0].icon, binding.ivWeather)
 
         makeViewsVisible()
         binding.apply {
-            //tvLocationName.text = weatherResponse.zoneName
             tvDate.text = fromUnixToString(weatherResponse.currentDay.dt)
             tvCurrentDegree.text = String.format("%.1f°C", weatherResponse.currentDay.temp)
             tvWeatherStatus.text = weatherResponse.currentDay.weather[0].description
@@ -165,12 +162,16 @@ class HomeFragment : Fragment() {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun setLocationNameByGeoCoder(coordinate: Coordinate) {
+    private fun setLocationNameByGeoCoder(weatherResponse: WeatherResponse) {
         val x =
-            Geocoder(requireContext()).getFromLocation(coordinate.latitude, coordinate.longitude, 5)
-        if (x != null) {
-            binding.tvLocationName.text =
-                x[0].countryName + "/" + x[0].adminArea.replace("Governorate", "")
+            Geocoder(requireContext()).getFromLocation(weatherResponse.latitude, weatherResponse.longitude, 5)
+        try {
+            if (x != null) {
+                binding.tvLocationName.text =
+                    x[0].countryName + "/" + x[0].adminArea.replace("Governorate", "")
+            }
+        } catch (exception: Exception) {
+            binding.tvLocationName.text = weatherResponse.zoneName
         }
     }
 }

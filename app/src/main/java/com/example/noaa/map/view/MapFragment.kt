@@ -6,80 +6,91 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.example.noaa.R
+import com.example.noaa.databinding.FragmentMapBinding
 import com.example.noaa.homeactivity.view.TAG
+import com.example.noaa.homeactivity.viewmodel.SharedViewModel
+import com.example.noaa.homeactivity.viewmodel.SharedViewModelFactory
+import com.example.noaa.model.Coordinate
+import com.example.noaa.model.Repo
+import com.example.noaa.services.location.LocationClient
+import com.example.noaa.services.network.RemoteSource
+import com.example.noaa.utilities.Constants
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [MapFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class MapFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
+
+    lateinit var binding: FragmentMapBinding
+    private var marker: Marker? = null
+    private var coordinate: Coordinate? = null
+    lateinit var sharedViewModel: SharedViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_map, container, false)
-    }
-
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment MapFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            MapFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        binding = FragmentMapBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         googleMapHandler()
+
+        val factory = SharedViewModelFactory(
+            Repo.getInstance(
+                RemoteSource, LocationClient.getInstance(
+                    LocationServices.getFusedLocationProviderClient(view.context)
+                )
+            ), view.context.getSharedPreferences(
+                Constants.SETTING,
+                AppCompatActivity.MODE_PRIVATE
+            )
+        )
+        sharedViewModel = ViewModelProvider(requireActivity(), factory)[SharedViewModel::class.java]
+
+        binding.btnSaveLocation.setOnClickListener {
+            if (coordinate != null) {
+                sharedViewModel.getWeatherData(coordinate!!, "en")
+                sharedViewModel.setLocationData(coordinate!!)
+                navigateBack()
+            }
+        }
+
     }
+
 
     private fun googleMapHandler() {
         val supportMapFragment: SupportMapFragment =
             childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        supportMapFragment.getMapAsync { googleMap ->
-            googleMap.setOnMapClickListener {
-                Log.d(TAG, it.toString())
-            }
-            googleMap.setOnMapLongClickListener {
-                googleMap.addMarker(
+        supportMapFragment.getMapAsync { map ->
+            map.setOnMapClickListener {
+                marker?.remove()
+                coordinate = Coordinate(it.latitude, it.longitude)
+                marker = map.addMarker(
                     MarkerOptions()
                         .position(it)
                 )
             }
         }
     }
+
+    private fun navigateBack() {
+        val fragmentManager = parentFragmentManager
+        fragmentManager.beginTransaction().remove(this).commit()
+        fragmentManager.popBackStack()
+    }
+
 }

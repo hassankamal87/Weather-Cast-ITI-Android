@@ -56,4 +56,5 @@
     <string name="fahrenheit">Fahrenheit</string>
     <string name="ok">OK</string>
     <string name="_12_may">12 MAY</string>
+    <string name="save_location">Save Location</string>
 </resources>

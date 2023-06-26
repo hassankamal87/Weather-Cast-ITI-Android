@@ -7,6 +7,9 @@ object Constants {
     const val TRANSITION_TO_MAP = "transitionToMap"
 
     const val SETTING = "setting"
+    const val LOCATION_DATA = "location_data"
+    const val LATITUDE = "latitude"
+    const val LONGITUDE = "longitude"
 
     const val LOCATION = "location"
     const val WIND_SPEED = "windSpeed"

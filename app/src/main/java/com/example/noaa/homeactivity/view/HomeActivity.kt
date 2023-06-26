@@ -13,6 +13,7 @@ import android.util.Log
 import android.view.Window
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.ui.NavigationUI
@@ -21,11 +22,13 @@ import com.example.noaa.databinding.ActivityHomeBinding
 import com.example.noaa.databinding.InitialDialogLayoutBinding
 import com.example.noaa.homeactivity.viewmodel.SharedViewModel
 import com.example.noaa.homeactivity.viewmodel.SharedViewModelFactory
+import com.example.noaa.model.Coordinate
 import com.example.noaa.model.Repo
 import com.example.noaa.utilities.Constants
 import com.example.noaa.services.location.LocationClient
 import com.example.noaa.services.network.RemoteSource
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.launch
 
 
 public const val TAG = "hassankamal"
@@ -39,8 +42,11 @@ class HomeActivity : AppCompatActivity() {
 
     private lateinit var sharedViewModelFactory: SharedViewModelFactory
     lateinit var sharedViewModel: SharedViewModel
+
+    lateinit var savedCoordinate: Coordinate
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         navController = Navigation.findNavController(this, R.id.nav_host_fragment)
@@ -72,6 +78,15 @@ class HomeActivity : AppCompatActivity() {
             Log.d(TAG, "longitude -> ${it.longitude}")
         }
 
+
+        sharedViewModel.getLocationData()
+        lifecycleScope.launch {
+            sharedViewModel.savedLocationStateFlow.collect {
+                savedCoordinate = it
+            }
+        }
+
+
     }
 
 
@@ -83,7 +98,11 @@ class HomeActivity : AppCompatActivity() {
 
     private fun transitionToMap() {
         Log.d(TAG, "onResume: transition to map")
-
+        if (savedCoordinate.latitude == 0.0) {
+            navController.navigate(R.id.mapFragment)
+        }else{
+            sharedViewModel.getWeatherData(savedCoordinate, "en")
+        }
     }
 
 
