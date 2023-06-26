@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 
 class LocationClient private constructor(
     private val fusedLocationClient: FusedLocationProviderClient
-) {
+): LocationClientInterface {
 
     private val sharedFlow: MutableSharedFlow<Coordinate> = MutableSharedFlow()
     companion object {
@@ -31,14 +31,14 @@ class LocationClient private constructor(
         }
     }
 
-    fun getCurrentLocation():Flow<Coordinate> {
+    override fun getCurrentLocation():Flow<Coordinate> {
         Log.d(TAG, "getCurrentLocation: ")
         requestNewLocationData()
         return sharedFlow
     }
 
     @SuppressLint("MissingPermission")
-    private fun requestNewLocationData() {
+    override fun requestNewLocationData() {
         Log.d(TAG, "requestNewLocationData: ")
         val locationRequest = LocationRequest()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
