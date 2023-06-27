@@ -24,7 +24,16 @@
         android:id="@+id/settingFragment"
         android:name="com.example.noaa.setting.view.SettingFragment"
         android:label="Setting"
-        tools:layout="@layout/fragment_setting" />
+        tools:layout="@layout/fragment_setting" >
+        <action
+            android:id="@+id/action_settingFragment_to_mapFragment"
+            app:destination="@id/mapFragment"
+            app:popUpTo="@id/settingFragment"
+            app:popUpToInclusive="true"/>
+        <action
+            android:id="@+id/action_settingFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
     <fragment
         android:id="@+id/mapFragment"
         android:name="com.example.noaa.map.view.MapFragment"

@@ -28,64 +28,72 @@ import com.example.noaa.utilities.Constants
 import com.example.noaa.services.location.LocationClient
 import com.example.noaa.services.network.RemoteSource
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 public const val TAG = "hassankamal"
 const val My_LOCATION_PERMISSION_ID = 5005
 
 class HomeActivity : AppCompatActivity() {
-    lateinit var binding: ActivityHomeBinding
-    lateinit var bindingInitialLayoutDialog: InitialDialogLayoutBinding
-    private var checkedBtn: Int = 0
+    private lateinit var binding: ActivityHomeBinding
     private lateinit var navController: NavController
 
     private lateinit var sharedViewModelFactory: SharedViewModelFactory
-    lateinit var sharedViewModel: SharedViewModel
+    private lateinit var sharedViewModel: SharedViewModel
 
-    lateinit var savedCoordinate: Coordinate
+    lateinit var savedCoordinateLocale: Coordinate
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         navController = Navigation.findNavController(this, R.id.nav_host_fragment)
         NavigationUI.setupWithNavController(binding.bottomNavigation, navController)
-        bindingInitialLayoutDialog = InitialDialogLayoutBinding.inflate(layoutInflater)
+
 
         sharedViewModelFactory = SharedViewModelFactory(
             Repo.getInstance(
-                RemoteSource, LocationClient.getInstance(
-                    LocationServices.getFusedLocationProviderClient(this)
-                )
-            ), getSharedPreferences(Constants.SETTING, MODE_PRIVATE)
+                RemoteSource,
+                LocationClient.getInstance(LocationServices.getFusedLocationProviderClient(this))
+            ),
+            getSharedPreferences(Constants.SETTING, MODE_PRIVATE)
         )
         sharedViewModel =
             ViewModelProvider(this, sharedViewModelFactory)[SharedViewModel::class.java]
 
-        Log.w(TAG, "activity view model ${sharedViewModel.hashCode()}")
-        sharedViewModel.locationStatusLiveData.observe(this) {
-            when (it) {
-                Constants.SHOW_DIALOG -> showLocationDialog()
-                Constants.REQUEST_PERMISSION -> requestPermissions()
-                Constants.SHOW_INITIAL_DIALOG -> showInitialSettingDialog()
-                Constants.TRANSITION_TO_MAP -> transitionToMap()
+
+        lifecycleScope.launch {
+            sharedViewModel.locationStatusStateFlow.collect {
+                withContext(Dispatchers.Main) {
+                    when (it) {
+                        Constants.SHOW_DIALOG -> showLocationDialog()
+                        Constants.REQUEST_PERMISSION -> requestPermissions()
+                        Constants.SHOW_INITIAL_DIALOG -> showInitialSettingDialog()
+                        Constants.TRANSITION_TO_MAP -> transitionToMap()
+                    }
+                }
             }
         }
 
-        sharedViewModel.coordinateLiveData.observe(this) {
-            Log.d(TAG, "latitude -> ${it.latitude}")
-            Log.d(TAG, "longitude -> ${it.longitude}")
+        lifecycleScope.launch {
+            sharedViewModel.coordinateStateFlow.collect {
+                Log.w(TAG, "onViewCreated: from fragment ${it.latitude}")
+                Log.w(TAG, "onViewCreated: from fragment ${it.longitude}")
+                if (it.latitude != 0.0) {
+                    sharedViewModel.getWeatherData(Coordinate(it.latitude, it.longitude), "en")
+                }
+            }
         }
 
 
-        sharedViewModel.getLocationData()
+        sharedViewModel.getLocationDataLocally()
         lifecycleScope.launch {
             sharedViewModel.savedLocationStateFlow.collect {
-                savedCoordinate = it
+                savedCoordinateLocale = it
             }
         }
-
 
     }
 
@@ -98,16 +106,15 @@ class HomeActivity : AppCompatActivity() {
 
     private fun transitionToMap() {
         Log.d(TAG, "onResume: transition to map")
-        if (savedCoordinate.latitude == 0.0) {
+        if (savedCoordinateLocale.latitude == 0.0) {
             navController.navigate(R.id.mapFragment)
-        }else{
-            sharedViewModel.getWeatherData(savedCoordinate, "en")
+        } else {
+            sharedViewModel.getWeatherData(savedCoordinateLocale, "en")
         }
     }
 
 
     private fun requestPermissions() {
-        Log.d(TAG, "requestPermissions: ")
         ActivityCompat.requestPermissions(
             this, arrayOf(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -119,7 +126,6 @@ class HomeActivity : AppCompatActivity() {
 
 
     private fun showLocationDialog() {
-        Log.d(TAG, "showLocationDialog: ")
         val builder = AlertDialog.Builder(this)
         builder.setMessage("Location services are disabled. Do you want to enable them?")
             .setCancelable(false)
@@ -128,24 +134,22 @@ class HomeActivity : AppCompatActivity() {
                 startActivity(intent)
             }
             .setNegativeButton("No") { _, _ ->
-                val latitude = 30.0131
-                val longitude = 31.2089
-                Log.d(TAG, "Giza lat -> $latitude ### long -> $longitude")
+                transitionToMap()
             }
         val dialog = builder.create()
         dialog.show()
     }
 
     private fun showInitialSettingDialog() {
+        val bindingInitialLayoutDialog = InitialDialogLayoutBinding.inflate(layoutInflater)
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCancelable(false)
-
         dialog.setContentView(bindingInitialLayoutDialog.root)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         bindingInitialLayoutDialog.btnOkInitial.setOnClickListener {
-            checkedBtn =
+            val checkedBtn =
                 bindingInitialLayoutDialog.radioGroupSettingLocationInitial.checkedRadioButtonId
 
             if (checkedBtn == bindingInitialLayoutDialog.radioSettingGpsInitial.id) {

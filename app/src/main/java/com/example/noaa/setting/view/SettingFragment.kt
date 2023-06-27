@@ -6,27 +6,28 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.example.noaa.R
 import com.example.noaa.databinding.FragmentSettingBinding
-
-
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+import com.example.noaa.homeactivity.viewmodel.SharedViewModel
+import com.example.noaa.homeactivity.viewmodel.SharedViewModelFactory
+import com.example.noaa.model.Repo
+import com.example.noaa.services.location.LocationClient
+import com.example.noaa.services.network.RemoteSource
+import com.example.noaa.utilities.Constants
+import com.google.android.gms.location.LocationServices
 
 
 class SettingFragment : Fragment() {
-    private var param1: String? = null
-    private var param2: String? = null
 
     private lateinit var binding: FragmentSettingBinding
-
+    private lateinit var sharedViewModel: SharedViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+
     }
 
     override fun onCreateView(
@@ -38,34 +39,48 @@ class SettingFragment : Fragment() {
         return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SettingFragment.
-         */
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SettingFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         cardsAnimation()
+
+        val sharedPreferences = view.context.getSharedPreferences(
+            Constants.SETTING,
+            AppCompatActivity.MODE_PRIVATE
+        )
+        val factory = SharedViewModelFactory(Repo.getInstance(RemoteSource,
+            LocationClient.getInstance(LocationServices.getFusedLocationProviderClient(view.context))),
+            sharedPreferences)
+        sharedViewModel = ViewModelProvider(requireActivity(), factory)[SharedViewModel::class.java]
+
+
+        if(sharedPreferences.getString(Constants.LOCATION, "null") == Constants.GPS){
+            binding.radioGroupSettingLocation.check(R.id.radio_setting_gps)
+        }else{
+            binding.radioGroupSettingLocation.check(R.id.radio_setting_map)
+        }
+
+        binding.radioGroupSettingLocation.setOnCheckedChangeListener { _, checkedId ->
+            if (checkedId == R.id.radio_setting_map) {
+                sharedViewModel.setLocationChoice(Constants.MAP)
+                val action = SettingFragmentDirections.actionSettingFragmentToMapFragment()
+                view.findNavController().navigate(action)
+            } else {
+                sharedViewModel.setLocationChoice(Constants.GPS)
+                sharedViewModel.getLocation(requireContext())
+            }
+        }
+
+
     }
 
-    private fun cardsAnimation(){
-        val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.card_setting_translation)
-        val animation2 = AnimationUtils.loadAnimation(requireContext(), R.anim.card_setting_translation2)
-        val animation3 = AnimationUtils.loadAnimation(requireContext(), R.anim.card_setting_translation3)
+    private fun cardsAnimation() {
+        val animation =
+            AnimationUtils.loadAnimation(requireContext(), R.anim.card_setting_translation)
+        val animation2 =
+            AnimationUtils.loadAnimation(requireContext(), R.anim.card_setting_translation2)
+        val animation3 =
+            AnimationUtils.loadAnimation(requireContext(), R.anim.card_setting_translation3)
         binding.cvLocation.startAnimation(animation)
         binding.cvLanguage.startAnimation(animation)
         binding.cvWind.startAnimation(animation2)

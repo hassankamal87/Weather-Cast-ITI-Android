@@ -27,7 +27,6 @@ import com.example.noaa.utilities.Constants
 import com.example.noaa.utilities.Functions
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -58,7 +57,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        iconAnimation()
 
         hourlyRecyclerAdapter = HourlyRecyclerAdapter()
         binding.rvHours.adapter = hourlyRecyclerAdapter
@@ -75,20 +74,12 @@ class HomeFragment : Fragment() {
                 AppCompatActivity.MODE_PRIVATE
             )
         )
-
         sharedViewModel = ViewModelProvider(requireActivity(), factory)[SharedViewModel::class.java]
 
 
-        sharedViewModel.coordinateLiveData.observe(viewLifecycleOwner) {
-            Log.w(TAG, "onViewCreated: from fragment ${it.latitude}")
-            Log.w(TAG, "onViewCreated: from fragment ${it.longitude}")
-            sharedViewModel.getWeatherData(Coordinate(it.latitude, it.longitude), "en")
-
-        }
-
 
         lifecycleScope.launch(Dispatchers.IO) {
-            sharedViewModel.weatherResponseStateFlow.collectLatest {
+            sharedViewModel.weatherResponseStateFlow.collect {
                 when (it) {
                     is ApiState.Success -> {
                         Log.d(TAG, "onViewCreated: ${it.weatherResponse}")
@@ -158,13 +149,17 @@ class HomeFragment : Fragment() {
             rvDays.visibility = View.VISIBLE
             rvHours.visibility = View.VISIBLE
         }
-        iconAnimation()
+
     }
 
     @SuppressLint("SetTextI18n")
     private fun setLocationNameByGeoCoder(weatherResponse: WeatherResponse) {
         val x =
-            Geocoder(requireContext()).getFromLocation(weatherResponse.latitude, weatherResponse.longitude, 5)
+            Geocoder(requireContext()).getFromLocation(
+                weatherResponse.latitude,
+                weatherResponse.longitude,
+                5
+            )
         try {
             if (x != null) {
                 binding.tvLocationName.text =

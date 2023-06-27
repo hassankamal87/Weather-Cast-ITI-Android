@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'androidx.navigation.safeargs.kotlin'
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 
 }
@@ -48,6 +49,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
+
+
     //Lottie
     implementation "com.airbnb.android:lottie:3.4.0"
 
@@ -55,6 +58,8 @@ dependencies {
     def nav_version = "2.4.0-alpha10"
     implementation "androidx.navigation:navigation-fragment-ktx:2.7.0-beta01"
     implementation "androidx.navigation:navigation-ui-ktx:2.7.0-beta01"
+    //safeArgs
+//    classpath 'androidx.navigation:navigation-safe-args-gradle-plugin:2.6.0'
 
     //google services
     implementation 'com.google.android.gms:play-services-location:17.1.0'
