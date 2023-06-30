@@ -9,6 +9,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
+import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -34,7 +35,8 @@ class LocationClient private constructor(
 
     override fun getCurrentLocation():Flow<Coordinate> {
         Log.d(TAG, "getCurrentLocation: ")
-        requestNewLocationData()
+       // requestNewLocationData() //--> some times do not update when i called it
+        getCurrentLocationTwo()
         return sharedFlow
     }
 
@@ -43,7 +45,8 @@ class LocationClient private constructor(
         Log.d(TAG, "requestNewLocationData: ")
         val locationRequest = LocationRequest()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        locationRequest.interval = 0
+        locationRequest.interval = Long.MAX_VALUE
+        locationRequest.fastestInterval = Long.MAX_VALUE
         fusedLocationClient.requestLocationUpdates(
             locationRequest,
             locationCallBack,
@@ -59,12 +62,22 @@ class LocationClient private constructor(
             val latitude = lastLocation.latitude
             val longitude = lastLocation.longitude
 
+            Log.d(TAG, "onLocationResult: location come from callback")
+
 
             val result = sharedFlow.tryEmit(Coordinate(latitude, longitude))
             Log.w(TAG, "onLocationResult: $result")
         }
     }
 
+
+    @SuppressLint("MissingPermission")
+    fun getCurrentLocationTwo(){
+        fusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token).addOnSuccessListener {
+            val result = sharedFlow.tryEmit(Coordinate(it.latitude, it.longitude))
+            Log.d(TAG, "getCurrentLocationTwo: resutl from other function $result ${it.longitude}")
+        }
+    }
 
 }
 

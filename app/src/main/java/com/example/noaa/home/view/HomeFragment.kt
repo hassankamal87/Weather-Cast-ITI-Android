@@ -101,6 +101,18 @@ class HomeFragment : Fragment() {
             }
         }
 
+        //for near me icon
+        if(view.context.getSharedPreferences(
+                Constants.SETTING,
+                AppCompatActivity.MODE_PRIVATE
+            ).getString(Constants.LOCATION, "") == Constants.MAP){
+            binding.ivNearMe.visibility = View.VISIBLE
+        }
+        binding.ivNearMe.setOnClickListener {
+            binding.prProgress.visibility = View.VISIBLE
+            sharedViewModel.setLocationChoice(Constants.GPS)
+            sharedViewModel.getLocation(view.context)
+        }
     }
 
     private fun iconAnimation() {
@@ -139,6 +151,7 @@ class HomeFragment : Fragment() {
 
     private fun makeViewsVisible() {
         binding.apply {
+            binding.prProgress.visibility = View.GONE
             loadingLottie.visibility = View.GONE
             tvLocationName.visibility = View.VISIBLE
             ivWeather.visibility = View.VISIBLE
@@ -160,13 +173,12 @@ class HomeFragment : Fragment() {
                 weatherResponse.longitude,
                 5
             )
-        try {
-            if (x != null) {
-                binding.tvLocationName.text =
-                    x[0].countryName + "/" + x[0].adminArea.replace("Governorate", "")
+
+            if (x != null && x[0].locality != null) {
+                binding.tvLocationName.text = x[0].locality
+                Log.d(TAG, "setLocationNameByGeoCoder: ${x[0].locality}")
+            }else{
+                binding.tvLocationName.text = weatherResponse.zoneName
             }
-        } catch (exception: Exception) {
-            binding.tvLocationName.text = weatherResponse.zoneName
-        }
     }
 }
