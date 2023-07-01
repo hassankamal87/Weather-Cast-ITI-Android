@@ -33,4 +33,7 @@ object Constants {
 
     const val WEATHER_API_KEY = "ec59a3c9baf2d69654b39307da4247c3"
     const val BASE_URL = "https://api.openweathermap.org/data/2.5/"
+
+    const val REGULAR = "regular"
+    const val FAVOURITE = "fav"
 }

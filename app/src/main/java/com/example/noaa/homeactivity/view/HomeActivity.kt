@@ -24,10 +24,12 @@ import com.example.noaa.homeactivity.viewmodel.SharedViewModel
 import com.example.noaa.homeactivity.viewmodel.SharedViewModelFactory
 import com.example.noaa.model.Coordinate
 import com.example.noaa.model.Repo
+import com.example.noaa.services.db.ConcreteLocalSource
 import com.example.noaa.utilities.Constants
 import com.example.noaa.services.location.LocationClient
 import com.example.noaa.services.network.RemoteSource
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,7 +39,7 @@ public const val TAG = "hassankamal"
 const val My_LOCATION_PERMISSION_ID = 5005
 
 class HomeActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityHomeBinding
+    lateinit var binding: ActivityHomeBinding
     private lateinit var navController: NavController
 
     private lateinit var sharedViewModelFactory: SharedViewModelFactory
@@ -48,7 +50,6 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         navController = Navigation.findNavController(this, R.id.nav_host_fragment)
         NavigationUI.setupWithNavController(binding.bottomNavigation, navController)
 
@@ -56,7 +57,8 @@ class HomeActivity : AppCompatActivity() {
         sharedViewModelFactory = SharedViewModelFactory(
             Repo.getInstance(
                 RemoteSource,
-                LocationClient.getInstance(LocationServices.getFusedLocationProviderClient(this))
+                LocationClient.getInstance(LocationServices.getFusedLocationProviderClient(this)),
+                ConcreteLocalSource.getInstance()
             ),
             getSharedPreferences(Constants.SETTING, MODE_PRIVATE)
         )
