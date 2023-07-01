@@ -1,6 +1,7 @@
 package com.example.noaa.home.view
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
@@ -20,6 +21,7 @@ import com.example.noaa.homeactivity.viewmodel.SharedViewModelFactory
 import com.example.noaa.model.Coordinate
 import com.example.noaa.model.Repo
 import com.example.noaa.model.WeatherResponse
+import com.example.noaa.services.db.ConcreteLocalSource
 import com.example.noaa.services.location.LocationClient
 import com.example.noaa.services.network.ApiState
 import com.example.noaa.services.network.RemoteSource
@@ -41,6 +43,7 @@ class HomeFragment : Fragment() {
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var hourlyRecyclerAdapter: HourlyRecyclerAdapter
     private lateinit var dailyRecyclerAdapter: DailyRecyclerAdapter
+    private lateinit var sharedPreferences: SharedPreferences
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -64,15 +67,16 @@ class HomeFragment : Fragment() {
 
         dailyRecyclerAdapter = DailyRecyclerAdapter()
         binding.rvDays.adapter = dailyRecyclerAdapter
+        sharedPreferences = view.context.getSharedPreferences(
+            Constants.SETTING,
+            AppCompatActivity.MODE_PRIVATE
+        )
         val factory = SharedViewModelFactory(
             Repo.getInstance(
-                RemoteSource, LocationClient.getInstance(
-                    LocationServices.getFusedLocationProviderClient(view.context)
-                )
-            ), view.context.getSharedPreferences(
-                Constants.SETTING,
-                AppCompatActivity.MODE_PRIVATE
-            )
+                RemoteSource,
+                LocationClient.getInstance(LocationServices.getFusedLocationProviderClient(view.context)),
+                ConcreteLocalSource.getInstance()
+            ), sharedPreferences
         )
         sharedViewModel = ViewModelProvider(requireActivity(), factory)[SharedViewModel::class.java]
 
@@ -102,10 +106,11 @@ class HomeFragment : Fragment() {
         }
 
         //for near me icon
-        if(view.context.getSharedPreferences(
+        if (view.context.getSharedPreferences(
                 Constants.SETTING,
                 AppCompatActivity.MODE_PRIVATE
-            ).getString(Constants.LOCATION, "") == Constants.MAP){
+            ).getString(Constants.LOCATION, "") == Constants.MAP
+        ) {
             binding.ivNearMe.visibility = View.VISIBLE
         }
         binding.ivNearMe.setOnClickListener {
@@ -129,11 +134,19 @@ class HomeFragment : Fragment() {
         makeViewsVisible()
         binding.apply {
             tvDate.text = fromUnixToString(weatherResponse.currentDay.dt)
-            tvCurrentDegree.text = String.format("%.1f°C", weatherResponse.currentDay.temp)
+            when (sharedPreferences.getString(Constants.TEMPERATURE, "null")) {
+                Constants.KELVIN -> tvCurrentDegree.text = String.format("%.1f°K", weatherResponse.currentDay.temp + 273.15)
+                Constants.FAHRENHEIT -> tvCurrentDegree.text = String.format("%.1f°F", weatherResponse.currentDay.temp * 9/5 +32)
+                else -> tvCurrentDegree.text = String.format("%.1f°C", weatherResponse.currentDay.temp)
+            }
             tvWeatherStatus.text = weatherResponse.currentDay.weather[0].description
             tvDynamicPressure.text = "${weatherResponse.currentDay.pressure} hpa"
             tvDynamicHumidity.text = "${weatherResponse.currentDay.humidity} %"
-            tvDynamicWind.text = "${weatherResponse.currentDay.wind_speed} %"
+            when(sharedPreferences.getString(Constants.WIND_SPEED, "null")){
+                Constants.MILE_HOUR -> tvDynamicWind.text = String.format("%.1f Mile/Hour", weatherResponse.currentDay.wind_speed * 2.237)
+                else -> tvDynamicWind.text = String.format("%.1f Meter/Sec", weatherResponse.currentDay.wind_speed)
+            }
+
             tvDynamicCloud.text = "${weatherResponse.currentDay.clouds} %"
             tvDynamicViolet.text = "${weatherResponse.currentDay.uvi}"
             tvDynamicVisibility.text = "${weatherResponse.currentDay.visibility} m"
@@ -162,23 +175,26 @@ class HomeFragment : Fragment() {
             rvDays.visibility = View.VISIBLE
             rvHours.visibility = View.VISIBLE
         }
-
     }
 
     @SuppressLint("SetTextI18n")
     private fun setLocationNameByGeoCoder(weatherResponse: WeatherResponse) {
-        val x =
-            Geocoder(requireContext()).getFromLocation(
-                weatherResponse.latitude,
-                weatherResponse.longitude,
-                5
-            )
+        try {
+            val x =
+                Geocoder(requireContext()).getFromLocation(
+                    weatherResponse.latitude,
+                    weatherResponse.longitude,
+                    5
+                )
 
             if (x != null && x[0].locality != null) {
                 binding.tvLocationName.text = x[0].locality
                 Log.d(TAG, "setLocationNameByGeoCoder: ${x[0].locality}")
-            }else{
+            } else {
                 binding.tvLocationName.text = weatherResponse.zoneName
             }
+        } catch (e: Exception) {
+            binding.tvLocationName.text = weatherResponse.zoneName
+        }
     }
 }

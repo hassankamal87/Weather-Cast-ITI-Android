@@ -14,7 +14,14 @@
         android:id="@+id/favouriteFragment"
         android:name="com.example.noaa.favourite.view.FavouriteFragment"
         android:label="Favourite"
-        tools:layout="@layout/fragment_favourite" />
+        tools:layout="@layout/fragment_favourite" >
+        <action
+            android:id="@+id/action_favouriteFragment_to_mapFragment"
+            app:destination="@id/mapFragment" />
+        <action
+            android:id="@+id/action_favouriteFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/alertFragment"
         android:name="com.example.noaa.alert.view.AlertFragment"
@@ -30,9 +37,6 @@
             app:destination="@id/mapFragment"
             app:popUpTo="@id/settingFragment"
             app:popUpToInclusive="true"/>
-        <action
-            android:id="@+id/action_settingFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
     </fragment>
     <fragment
         android:id="@+id/mapFragment"
@@ -42,5 +46,18 @@
         <action
             android:id="@+id/action_mapFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
+        <argument
+            android:name="kind"
+            app:argType="string"
+            android:defaultValue="regular" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="com.example.noaa.details.view.DetailsFragment"
+        android:label="fragment_details"
+        tools:layout="@layout/fragment_details" >
+        <argument
+            android:name="place"
+            app:argType="com.example.noaa.model.Place" />
     </fragment>
 </navigation>
