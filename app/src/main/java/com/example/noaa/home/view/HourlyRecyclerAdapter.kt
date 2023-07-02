@@ -1,6 +1,7 @@
 package com.example.noaa.home.view
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -10,13 +11,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.noaa.R
 import com.example.noaa.databinding.ItemHoursBinding
 import com.example.noaa.model.Hourly
+import com.example.noaa.utilities.Constants
 import com.example.noaa.utilities.Functions
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class HourlyRecyclerAdapter :
+class HourlyRecyclerAdapter(private val sharedPreferences: SharedPreferences) :
     ListAdapter<Hourly, HourlyRecyclerAdapter.HourlyViewHolder>(RecyclerDiffUtil()) {
 
     lateinit var binding: ItemHoursBinding
@@ -32,36 +34,47 @@ class HourlyRecyclerAdapter :
     override fun onBindViewHolder(holder: HourlyViewHolder, position: Int) {
         val currentItem = getItem(position)
         holder.apply {
-            binding.tvDateHours.text = formatDateStamp(currentItem.dt)
-            binding.tvTimeHours.text = formatTimestamp(currentItem.dt)
-            binding.tvDegreeHours.text = String.format("%.0f°C", currentItem.temp)
-            Functions.setIcon(currentItem.weather[0].icon, binding.ivStatusIconHours)
-        }
+            binding.apply {
+                if (sharedPreferences.getString(Constants.LANGUAGE, "null") == Constants.ARABIC) {
+                    tvDateHours.text =
+                        Functions.formatDateStamp(currentItem.dt, tvDateHours.context, "ar")
+                    tvTimeHours.text = Functions.formatTimestamp(currentItem.dt, "ar")
+                }else{
+                    tvDateHours.text =
+                        Functions.formatDateStamp(currentItem.dt, tvDateHours.context, "en")
+                    tvTimeHours.text = Functions.formatTimestamp(currentItem.dt, "en")
+                }
 
+                tvDegreeHours.text = String.format("%.0f°C", currentItem.temp)
+                when (sharedPreferences.getString(Constants.TEMPERATURE, "null")) {
+                    Constants.KELVIN -> tvDegreeHours.text = String.format(
+                        "%.0f°${tvDegreeHours.context.getString(R.string.k)}",
+                        currentItem.temp + 273.15
+                    )
+
+                    Constants.FAHRENHEIT -> tvDegreeHours.text = String.format(
+                        "%.0f°${tvDegreeHours.context.getString(R.string.f)}",
+                        currentItem.temp * 9 / 5 + 32
+                    )
+
+                    else -> tvDegreeHours.text =
+                        String.format(
+                            "%.0f°${tvDegreeHours.context.getString(R.string.c)}",
+                            currentItem.temp
+                        )
+                }
+                Functions.setIcon(currentItem.weather[0].icon, ivStatusIconHours)
+            }
+        }
 
     }
 
     inner class HourlyViewHolder(val binding: ItemHoursBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-    private fun formatTimestamp(timestamp: Int): String {
-        val sdf = SimpleDateFormat("h a", Locale.ENGLISH)
-        val date = Date(timestamp.toLong() * 1000)
-        return sdf.format(date)
-    }
 
-    private fun formatDateStamp(timestamp: Int): String {
-        val sdf = SimpleDateFormat("d MMM", Locale.ENGLISH)
-        val calendar = Calendar.getInstance()
-        val currentDay = calendar.get(Calendar.DAY_OF_YEAR)
-        calendar.timeInMillis = timestamp.toLong() * 1000
-        val targetDay = calendar.get(Calendar.DAY_OF_YEAR)
-        return when (targetDay) {
-            currentDay -> "Today"
-            currentDay + 1 -> "Tomorrow"
-            else -> sdf.format(calendar.time)
-        }
-    }
+
+
 }
 
 class RecyclerDiffUtil : DiffUtil.ItemCallback<Hourly>() {

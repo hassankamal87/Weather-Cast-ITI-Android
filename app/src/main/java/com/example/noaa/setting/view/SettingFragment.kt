@@ -1,6 +1,10 @@
 package com.example.noaa.setting.view
 
+import android.app.Activity
+import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -20,7 +24,9 @@ import com.example.noaa.services.db.ConcreteLocalSource
 import com.example.noaa.services.location.LocationClient
 import com.example.noaa.services.network.RemoteSource
 import com.example.noaa.utilities.Constants
+import com.example.noaa.utilities.Functions
 import com.google.android.gms.location.LocationServices
+import java.util.Locale
 
 
 class SettingFragment : Fragment() {
@@ -86,10 +92,14 @@ class SettingFragment : Fragment() {
 
 
         binding.radioGroupSettingLanguage.setOnCheckedChangeListener { _, checkedId ->
-            if (checkedId == R.id.radio_setting_english) {
-                sharedPreferences.edit().putString(Constants.LANGUAGE, Constants.ENGLISH).apply()
-            } else {
+            if (checkedId == R.id.radio_setting_arabic) {
                 sharedPreferences.edit().putString(Constants.LANGUAGE, Constants.ARABIC).apply()
+                Functions.changeLanguage(requireActivity(),"ar")
+                restartApplication()
+            } else {
+                sharedPreferences.edit().putString(Constants.LANGUAGE, Constants.ENGLISH).apply()
+                Functions.changeLanguage(requireActivity(),"en")
+                restartApplication()
             }
         }
 
@@ -161,4 +171,16 @@ class SettingFragment : Fragment() {
             binding.radioGroupSettingTemp.check(R.id.radio_setting_celsius)
         }
     }
+
+    private fun restartApplication(){
+        val intent = requireActivity().packageManager.getLaunchIntentForPackage(
+            requireActivity().packageName
+        )
+        intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        requireActivity().finish()
+        if (intent != null) {
+            startActivity(intent)
+        }
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.example.noaa.home.view
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -10,16 +11,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.noaa.R
 import com.example.noaa.databinding.ItemDaysBinding
 import com.example.noaa.model.Daily
+import com.example.noaa.utilities.Constants
 import com.example.noaa.utilities.Functions
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class DailyRecyclerAdapter :
+class DailyRecyclerAdapter(private val sharedPreferences: SharedPreferences) :
     ListAdapter<Daily, DailyRecyclerAdapter.DailyViewHolder>(RecyclerDiffUtilDaily()) {
 
     lateinit var binding: ItemDaysBinding
+
+
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DailyViewHolder {
         val inflater: LayoutInflater =
             parent.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -33,9 +38,32 @@ class DailyRecyclerAdapter :
         holder.apply {
             binding.apply {
 
-                tvDayDays.text = formatDayOfWeek(currentItem.dt)
+                if (sharedPreferences.getString(Constants.LANGUAGE, null) == Constants.ARABIC) {
+                    tvDayDays.text =
+                        Functions.formatDayOfWeek(currentItem.dt, tvDayDays.context, "ar")
+                } else {
+                    tvDayDays.text =
+                        Functions.formatDayOfWeek(currentItem.dt, tvDayDays.context, "en")
+                }
                 tvStatusDays.text = currentItem.weather[0].description
-                tvDegreeDays.text = String.format("%.0f/%.0f°C",currentItem.temp.max,currentItem.temp.min)
+                when (sharedPreferences.getString(Constants.TEMPERATURE, "null")) {
+                    Constants.KELVIN -> tvDegreeDays.text = String.format(
+                        "%.0f/%.0f°${tvDegreeDays.context.getString(R.string.k)}",
+                        currentItem.temp.max + 273.15, currentItem.temp.min + 273.15
+                    )
+
+                    Constants.FAHRENHEIT -> tvDegreeDays.text = String.format(
+                        "%.0f/%.0f°${tvDegreeDays.context.getString(R.string.f)}",
+                        currentItem.temp.max * 9 / 5 + 32, currentItem.temp.min * 9 / 5 + 32
+                    )
+
+                    else -> tvDegreeDays.text =
+                        String.format(
+                            "%.0f/%.0f°${tvDegreeDays.context.getString(R.string.c)}",
+                            currentItem.temp.max,
+                            currentItem.temp.min
+                        )
+                }
                 Functions.setIcon(currentItem.weather[0].icon, ivIconDays)
             }
 
@@ -45,18 +73,6 @@ class DailyRecyclerAdapter :
     inner class DailyViewHolder(private val binding: ItemDaysBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-    private fun formatDayOfWeek(timestamp: Int): String {
-        val sdf = SimpleDateFormat("EEE", Locale.ENGLISH)
-        val calendar: Calendar = Calendar.getInstance()
-        val currentDay = calendar.get(Calendar.DAY_OF_YEAR)
-        calendar.timeInMillis = timestamp.toLong() * 1000
-        val targetDay = calendar.get(Calendar.DAY_OF_YEAR)
-        return when (targetDay) {
-            currentDay -> "Today"
-            currentDay + 1 -> "Tomorrow"
-            else -> sdf.format(calendar.time).uppercase(Locale.ROOT)
-        }
-    }
 }
 
 class RecyclerDiffUtilDaily : DiffUtil.ItemCallback<Daily>() {

@@ -62,15 +62,10 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         iconAnimation()
 
-        hourlyRecyclerAdapter = HourlyRecyclerAdapter()
-        binding.rvHours.adapter = hourlyRecyclerAdapter
 
-        dailyRecyclerAdapter = DailyRecyclerAdapter()
-        binding.rvDays.adapter = dailyRecyclerAdapter
-        sharedPreferences = view.context.getSharedPreferences(
-            Constants.SETTING,
-            AppCompatActivity.MODE_PRIVATE
-        )
+
+        sharedPreferences =
+            view.context.getSharedPreferences(Constants.SETTING, AppCompatActivity.MODE_PRIVATE)
         val factory = SharedViewModelFactory(
             Repo.getInstance(
                 RemoteSource,
@@ -80,7 +75,10 @@ class HomeFragment : Fragment() {
         )
         sharedViewModel = ViewModelProvider(requireActivity(), factory)[SharedViewModel::class.java]
 
-
+        hourlyRecyclerAdapter = HourlyRecyclerAdapter(sharedPreferences)
+        binding.rvHours.adapter = hourlyRecyclerAdapter
+        dailyRecyclerAdapter = DailyRecyclerAdapter(sharedPreferences)
+        binding.rvDays.adapter = dailyRecyclerAdapter
 
         lifecycleScope.launch(Dispatchers.IO) {
             sharedViewModel.weatherResponseStateFlow.collect {
@@ -106,10 +104,7 @@ class HomeFragment : Fragment() {
         }
 
         //for near me icon
-        if (view.context.getSharedPreferences(
-                Constants.SETTING,
-                AppCompatActivity.MODE_PRIVATE
-            ).getString(Constants.LOCATION, "") == Constants.MAP
+        if (sharedPreferences.getString(Constants.LOCATION, "") == Constants.MAP
         ) {
             binding.ivNearMe.visibility = View.VISIBLE
         }
@@ -117,6 +112,7 @@ class HomeFragment : Fragment() {
             binding.prProgress.visibility = View.VISIBLE
             sharedViewModel.setLocationChoice(Constants.GPS)
             sharedViewModel.getLocation(view.context)
+            binding.ivNearMe.visibility = View.GONE
         }
     }
 
@@ -133,33 +129,57 @@ class HomeFragment : Fragment() {
 
         makeViewsVisible()
         binding.apply {
-            tvDate.text = fromUnixToString(weatherResponse.currentDay.dt)
+            if (sharedPreferences.getString(Constants.LANGUAGE, "null") == Constants.ARABIC) {
+                tvDate.text = Functions.fromUnixToString(weatherResponse.currentDay.dt, "ar")
+            }else{
+                tvDate.text = Functions.fromUnixToString(weatherResponse.currentDay.dt, "en")
+            }
             when (sharedPreferences.getString(Constants.TEMPERATURE, "null")) {
-                Constants.KELVIN -> tvCurrentDegree.text = String.format("%.1f°K", weatherResponse.currentDay.temp + 273.15)
-                Constants.FAHRENHEIT -> tvCurrentDegree.text = String.format("%.1f°F", weatherResponse.currentDay.temp * 9/5 +32)
-                else -> tvCurrentDegree.text = String.format("%.1f°C", weatherResponse.currentDay.temp)
+                Constants.KELVIN -> tvCurrentDegree.text = String.format(
+                    "%.1f°${getString(R.string.k)}",
+                    weatherResponse.currentDay.temp + 273.15
+                )
+
+                Constants.FAHRENHEIT -> tvCurrentDegree.text = String.format(
+                    "%.1f°${getString(R.string.f)}",
+                    weatherResponse.currentDay.temp * 9 / 5 + 32
+                )
+
+                else -> tvCurrentDegree.text =
+                    String.format("%.1f°${getString(R.string.c)}", weatherResponse.currentDay.temp)
             }
             tvWeatherStatus.text = weatherResponse.currentDay.weather[0].description
-            tvDynamicPressure.text = "${weatherResponse.currentDay.pressure} hpa"
-            tvDynamicHumidity.text = "${weatherResponse.currentDay.humidity} %"
-            when(sharedPreferences.getString(Constants.WIND_SPEED, "null")){
-                Constants.MILE_HOUR -> tvDynamicWind.text = String.format("%.1f Mile/Hour", weatherResponse.currentDay.wind_speed * 2.237)
-                else -> tvDynamicWind.text = String.format("%.1f Meter/Sec", weatherResponse.currentDay.wind_speed)
+            tvDynamicPressure.text =
+                String.format("%d %s", weatherResponse.currentDay.pressure, getString(R.string.hpa))
+            tvDynamicHumidity.text = String.format(
+                "%d %s",
+                weatherResponse.currentDay.humidity,
+                getString(R.string.percentage)
+            )
+            when (sharedPreferences.getString(Constants.WIND_SPEED, "null")) {
+                Constants.MILE_HOUR -> tvDynamicWind.text = String.format(
+                    "%.1f ${getString(R.string.mile_hour)}",
+                    weatherResponse.currentDay.wind_speed * 2.237
+                )
+
+                else -> tvDynamicWind.text = String.format(
+                    "%.1f ${getString(R.string.meter_sec)}",
+                    weatherResponse.currentDay.wind_speed
+                )
             }
 
-            tvDynamicCloud.text = "${weatherResponse.currentDay.clouds} %"
-            tvDynamicViolet.text = "${weatherResponse.currentDay.uvi}"
-            tvDynamicVisibility.text = "${weatherResponse.currentDay.visibility} m"
+            tvDynamicCloud.text = String.format("%d %s", weatherResponse.currentDay.clouds, getString(R.string.percentage))
+            tvDynamicViolet.text = String.format("%.1f", weatherResponse.currentDay.uvi)
+            tvDynamicVisibility.text = String.format("%d %s", weatherResponse.currentDay.visibility, getString(R.string.m))
             hourlyRecyclerAdapter.submitList(weatherResponse.hours)
-            dailyRecyclerAdapter.submitList(weatherResponse.days.filterIndexed { index, _ -> index != 0 })
+            dailyRecyclerAdapter.submitList(
+                weatherResponse.days
+                    .filterIndexed { index, _ -> index != 0 }
+                    .sortedWith(compareBy { it.dt })
+                    //.sortedBy { day -> weatherResponse.days.indexOf(day) }
+            )
         }
 
-    }
-
-    private fun fromUnixToString(time: Int): String {
-        val sdf = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
-        val date = Date(time * 1000L)
-        return sdf.format(date).uppercase(Locale.ROOT)
     }
 
     private fun makeViewsVisible() {

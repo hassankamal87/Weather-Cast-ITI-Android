@@ -1,5 +1,6 @@
 package com.example.noaa.map.view
 
+import android.content.SharedPreferences
 import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
@@ -36,6 +37,7 @@ class MapFragment : Fragment() {
     private var marker: Marker? = null
     private var coordinate: Coordinate? = null
     lateinit var sharedViewModel: SharedViewModel
+    lateinit var sharedPreferences: SharedPreferences
 
     override fun onStart() {
         super.onStart()
@@ -61,23 +63,24 @@ class MapFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         googleMapHandler()
 
+        sharedPreferences = view.context.getSharedPreferences(Constants.SETTING, AppCompatActivity.MODE_PRIVATE)
         val factory = SharedViewModelFactory(
             Repo.getInstance(
                 RemoteSource, LocationClient.getInstance(
                     LocationServices.getFusedLocationProviderClient(view.context),
                 ),
                 ConcreteLocalSource.getInstance()
-            ), view.context.getSharedPreferences(
-                Constants.SETTING,
-                AppCompatActivity.MODE_PRIVATE
-            )
-        )
+            ), sharedPreferences)
         sharedViewModel = ViewModelProvider(requireActivity(), factory)[SharedViewModel::class.java]
         val kind = MapFragmentArgs.fromBundle(requireArguments()).kind
         binding.btnSaveLocation.setOnClickListener {
             if (coordinate != null) {
                 if (kind == Constants.REGULAR) {
-                    sharedViewModel.getWeatherData(coordinate!!, "en")
+                    if(sharedPreferences.getString(Constants.LANGUAGE, "null") == Constants.ARABIC){
+                        sharedViewModel.getWeatherData(coordinate!!, "ar")
+                    }else{
+                        sharedViewModel.getWeatherData(coordinate!!, "en")
+                    }
                     sharedViewModel.setLocationData(coordinate!!)
                     navigateBack()
                 } else {

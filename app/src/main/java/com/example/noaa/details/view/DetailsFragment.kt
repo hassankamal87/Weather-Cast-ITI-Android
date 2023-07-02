@@ -1,6 +1,7 @@
 package com.example.noaa.details.view
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
@@ -45,6 +46,7 @@ class DetailsFragment : Fragment() {
     lateinit var mapViewModel: SharedViewModel
     lateinit var hourlyRecyclerAdapter: HourlyRecyclerAdapter
     lateinit var dailyRecyclerAdapter: DailyRecyclerAdapter
+    lateinit var sharedPreferences: SharedPreferences
 
     override fun onStart() {
         super.onStart()
@@ -69,22 +71,25 @@ class DetailsFragment : Fragment() {
         val place = DetailsFragmentArgs.fromBundle(requireArguments()).place
 
 
+        sharedPreferences =
+            view.context.getSharedPreferences(Constants.SETTING, AppCompatActivity.MODE_PRIVATE)
         val factory = SharedViewModelFactory(
             Repo.getInstance(
                 RemoteSource, LocationClient.getInstance(
                     LocationServices.getFusedLocationProviderClient(view.context),
                 ),
                 ConcreteLocalSource.getInstance()
-            ), view.context.getSharedPreferences(
-                Constants.SETTING,
-                AppCompatActivity.MODE_PRIVATE
-            )
+            ), sharedPreferences
         )
         mapViewModel = ViewModelProvider(this, factory)[SharedViewModel::class.java]
-        mapViewModel.getWeatherData(Coordinate(place.latitude, place.longitude), "en")
+        if (sharedPreferences.getString(Constants.LANGUAGE, "null") == Constants.ARABIC) {
+            mapViewModel.getWeatherData(Coordinate(place.latitude, place.longitude), "ar")
+        }else{
+            mapViewModel.getWeatherData(Coordinate(place.latitude, place.longitude), "en")
+        }
 
-        dailyRecyclerAdapter = DailyRecyclerAdapter()
-        hourlyRecyclerAdapter = HourlyRecyclerAdapter()
+        dailyRecyclerAdapter = DailyRecyclerAdapter(sharedPreferences)
+        hourlyRecyclerAdapter = HourlyRecyclerAdapter(sharedPreferences)
         binding.rvDaysDetails.adapter = dailyRecyclerAdapter
         binding.rvHoursDetails.adapter = hourlyRecyclerAdapter
 
@@ -119,15 +124,52 @@ class DetailsFragment : Fragment() {
 
         makeViewsVisible()
         binding.apply {
-            tvDateDetails.text = fromUnixToString(weatherResponse.currentDay.dt)
-            tvCurrentDegreeDetails.text = String.format("%.1f°C", weatherResponse.currentDay.temp)
+            if (sharedPreferences.getString(Constants.LANGUAGE, "null") == Constants.ARABIC) {
+                tvDateDetails.text = Functions.fromUnixToString(weatherResponse.currentDay.dt, "ar")
+            } else {
+                tvDateDetails.text = Functions.fromUnixToString(weatherResponse.currentDay.dt, "en")
+            }
+            when (sharedPreferences.getString(Constants.TEMPERATURE, "null")) {
+                Constants.KELVIN -> tvCurrentDegreeDetails.text = String.format(
+                    "%.1f°${getString(R.string.k)}",
+                    weatherResponse.currentDay.temp + 273.15
+                )
+
+                Constants.FAHRENHEIT -> tvCurrentDegreeDetails.text = String.format(
+                    "%.1f°${getString(R.string.f)}",
+                    weatherResponse.currentDay.temp * 9 / 5 + 32
+                )
+
+                else -> tvCurrentDegreeDetails.text =
+                    String.format("%.1f°${getString(R.string.c)}", weatherResponse.currentDay.temp)
+            }
             tvWeatherStatusDetails.text = weatherResponse.currentDay.weather[0].description
-            tvDynamicPressureDetails.text = "${weatherResponse.currentDay.pressure} hpa"
-            tvDynamicHumidityDetails.text = "${weatherResponse.currentDay.humidity} %"
-            tvDynamicWindDetails.text = "${weatherResponse.currentDay.wind_speed} %"
-            tvDynamicCloudDetails.text = "${weatherResponse.currentDay.clouds} %"
-            tvDynamicVioletDetails.text = "${weatherResponse.currentDay.uvi}"
-            tvDynamicVisibilityDetails.text = "${weatherResponse.currentDay.visibility} m"
+            tvDynamicPressureDetails.text =
+                String.format("%d %s", weatherResponse.currentDay.pressure, getString(R.string.hpa))
+            tvDynamicHumidityDetails.text = String.format(
+                "%d %s",
+                weatherResponse.currentDay.humidity,
+                getString(R.string.percentage)
+            )
+            when (sharedPreferences.getString(Constants.WIND_SPEED, "null")) {
+                Constants.MILE_HOUR -> tvDynamicWindDetails.text = String.format(
+                    "%.1f ${getString(R.string.mile_hour)}",
+                    weatherResponse.currentDay.wind_speed * 2.237
+                )
+
+                else -> tvDynamicWindDetails.text = String.format(
+                    "%.1f ${getString(R.string.meter_sec)}",
+                    weatherResponse.currentDay.wind_speed
+                )
+            }
+            tvDynamicCloudDetails.text = String.format(
+                "%d %s",
+                weatherResponse.currentDay.clouds,
+                getString(R.string.percentage)
+            )
+            tvDynamicVioletDetails.text = String.format("%.1f", weatherResponse.currentDay.uvi)
+            tvDynamicVisibilityDetails.text =
+                String.format("%d %s", weatherResponse.currentDay.visibility, getString(R.string.m))
             hourlyRecyclerAdapter.submitList(weatherResponse.hours)
             dailyRecyclerAdapter.submitList(weatherResponse.days.filterIndexed { index, _ -> index != 0 })
         }
@@ -148,12 +190,6 @@ class DetailsFragment : Fragment() {
         }
     }
 
-    private fun fromUnixToString(time: Int): String {
-        val sdf = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
-        val date = Date(time * 1000L)
-        return sdf.format(date).uppercase(Locale.ROOT)
-    }
-
     @SuppressLint("SetTextI18n")
     private fun setLocationNameByGeoCoder(weatherResponse: WeatherResponse) {
         try {
@@ -170,12 +206,12 @@ class DetailsFragment : Fragment() {
             } else {
                 binding.tvLocationNameDetails.text = weatherResponse.zoneName
             }
-        }catch (e: Exception){
+        } catch (e: Exception) {
             binding.tvLocationNameDetails.text = weatherResponse.zoneName
         }
     }
 
-    override fun onDestroy(){
+    override fun onDestroy() {
         super.onDestroy()
         val homeActivity = requireActivity() as HomeActivity
         homeActivity.binding.bottomNavigation.visibility = View.VISIBLE
