@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.example.noaa.R
 import com.example.noaa.databinding.FragmentDetailsBinding
 import com.example.noaa.home.view.DailyRecyclerAdapter
@@ -35,9 +34,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 
 class DetailsFragment : Fragment() {
@@ -120,58 +116,58 @@ class DetailsFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     private fun setDataToViews(weatherResponse: WeatherResponse) {
         setLocationNameByGeoCoder(weatherResponse)
-        Functions.setIcon(weatherResponse.currentDay.weather[0].icon, binding.ivWeatherDetails)
+        Functions.setIcon(weatherResponse.current.weather[0].icon, binding.ivWeatherDetails)
 
         makeViewsVisible()
         binding.apply {
             if (sharedPreferences.getString(Constants.LANGUAGE, "null") == Constants.ARABIC) {
-                tvDateDetails.text = Functions.fromUnixToString(weatherResponse.currentDay.dt, "ar")
+                tvDateDetails.text = Functions.fromUnixToString(weatherResponse.current.dt, "ar")
             } else {
-                tvDateDetails.text = Functions.fromUnixToString(weatherResponse.currentDay.dt, "en")
+                tvDateDetails.text = Functions.fromUnixToString(weatherResponse.current.dt, "en")
             }
             when (sharedPreferences.getString(Constants.TEMPERATURE, "null")) {
                 Constants.KELVIN -> tvCurrentDegreeDetails.text = String.format(
                     "%.1f°${getString(R.string.k)}",
-                    weatherResponse.currentDay.temp + 273.15
+                    weatherResponse.current.temp + 273.15
                 )
 
                 Constants.FAHRENHEIT -> tvCurrentDegreeDetails.text = String.format(
                     "%.1f°${getString(R.string.f)}",
-                    weatherResponse.currentDay.temp * 9 / 5 + 32
+                    weatherResponse.current.temp * 9 / 5 + 32
                 )
 
                 else -> tvCurrentDegreeDetails.text =
-                    String.format("%.1f°${getString(R.string.c)}", weatherResponse.currentDay.temp)
+                    String.format("%.1f°${getString(R.string.c)}", weatherResponse.current.temp)
             }
-            tvWeatherStatusDetails.text = weatherResponse.currentDay.weather[0].description
+            tvWeatherStatusDetails.text = weatherResponse.current.weather[0].description
             tvDynamicPressureDetails.text =
-                String.format("%d %s", weatherResponse.currentDay.pressure, getString(R.string.hpa))
+                String.format("%d %s", weatherResponse.current.pressure, getString(R.string.hpa))
             tvDynamicHumidityDetails.text = String.format(
                 "%d %s",
-                weatherResponse.currentDay.humidity,
+                weatherResponse.current.humidity,
                 getString(R.string.percentage)
             )
             when (sharedPreferences.getString(Constants.WIND_SPEED, "null")) {
                 Constants.MILE_HOUR -> tvDynamicWindDetails.text = String.format(
                     "%.1f ${getString(R.string.mile_hour)}",
-                    weatherResponse.currentDay.wind_speed * 2.237
+                    weatherResponse.current.wind_speed * 2.237
                 )
 
                 else -> tvDynamicWindDetails.text = String.format(
                     "%.1f ${getString(R.string.meter_sec)}",
-                    weatherResponse.currentDay.wind_speed
+                    weatherResponse.current.wind_speed
                 )
             }
             tvDynamicCloudDetails.text = String.format(
                 "%d %s",
-                weatherResponse.currentDay.clouds,
+                weatherResponse.current.clouds,
                 getString(R.string.percentage)
             )
-            tvDynamicVioletDetails.text = String.format("%.1f", weatherResponse.currentDay.uvi)
+            tvDynamicVioletDetails.text = String.format("%.1f", weatherResponse.current.uvi)
             tvDynamicVisibilityDetails.text =
-                String.format("%d %s", weatherResponse.currentDay.visibility, getString(R.string.m))
-            hourlyRecyclerAdapter.submitList(weatherResponse.hours)
-            dailyRecyclerAdapter.submitList(weatherResponse.days.filterIndexed { index, _ -> index != 0 })
+                String.format("%d %s", weatherResponse.current.visibility, getString(R.string.m))
+            hourlyRecyclerAdapter.submitList(weatherResponse.hourly)
+            dailyRecyclerAdapter.submitList(weatherResponse.daily.filterIndexed { index, _ -> index != 0 })
         }
 
     }
@@ -195,8 +191,8 @@ class DetailsFragment : Fragment() {
         try {
             val x =
                 Geocoder(requireContext()).getFromLocation(
-                    weatherResponse.latitude,
-                    weatherResponse.longitude,
+                    weatherResponse.lat,
+                    weatherResponse.lon,
                     5
                 )
 
@@ -204,10 +200,10 @@ class DetailsFragment : Fragment() {
                 binding.tvLocationNameDetails.text = x[0].locality
                 Log.d(TAG, "setLocationNameByGeoCoder: ${x[0].locality}")
             } else {
-                binding.tvLocationNameDetails.text = weatherResponse.zoneName
+                binding.tvLocationNameDetails.text = weatherResponse.timezone
             }
         } catch (e: Exception) {
-            binding.tvLocationNameDetails.text = weatherResponse.zoneName
+            binding.tvLocationNameDetails.text = weatherResponse.timezone
         }
     }
 

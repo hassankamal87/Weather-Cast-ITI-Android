@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -18,7 +19,6 @@ import com.example.noaa.databinding.FragmentHomeBinding
 import com.example.noaa.homeactivity.view.TAG
 import com.example.noaa.homeactivity.viewmodel.SharedViewModel
 import com.example.noaa.homeactivity.viewmodel.SharedViewModelFactory
-import com.example.noaa.model.Coordinate
 import com.example.noaa.model.Repo
 import com.example.noaa.model.WeatherResponse
 import com.example.noaa.services.db.ConcreteLocalSource
@@ -27,13 +27,11 @@ import com.example.noaa.services.network.ApiState
 import com.example.noaa.services.network.RemoteSource
 import com.example.noaa.utilities.Constants
 import com.example.noaa.utilities.Functions
+import com.example.noaa.utilities.LocationUtility
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 
 class HomeFragment : Fragment() {
@@ -88,16 +86,27 @@ class HomeFragment : Fragment() {
                         withContext(Dispatchers.Main) {
                             setDataToViews(it.weatherResponse)
                         }
+                        if (sharedViewModel.checkConnection(requireContext())) {
+                            sharedViewModel.insertCashedData(requireContext(), it.weatherResponse)
+                        }
                     }
 
                     is ApiState.Loading -> {
                         // show progress bar
-                        binding.loadingLottie.visibility = View.VISIBLE
+                        withContext(Dispatchers.Main) {
+                            binding.loadingLottie.visibility = View.VISIBLE
+                        }
                     }
 
                     else -> {
-                        Log.d(TAG, "onViewCreated: ${it}")
-
+                        withContext(Dispatchers.Main) {
+                            binding.loadingLottie.visibility = View.GONE
+                            Toast.makeText(
+                                requireContext(),
+                                (it as ApiState.Failure).errMsg,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 }
             }
@@ -109,10 +118,18 @@ class HomeFragment : Fragment() {
             binding.ivNearMe.visibility = View.VISIBLE
         }
         binding.ivNearMe.setOnClickListener {
-            binding.prProgress.visibility = View.VISIBLE
-            sharedViewModel.setLocationChoice(Constants.GPS)
-            sharedViewModel.getLocation(view.context)
-            binding.ivNearMe.visibility = View.GONE
+            if (sharedViewModel.checkConnection(requireContext())) {
+                binding.prProgress.visibility = View.VISIBLE
+                sharedViewModel.setLocationChoice(Constants.GPS)
+                sharedViewModel.getLocation(view.context)
+                binding.ivNearMe.visibility = View.GONE
+            }else{
+                Toast.makeText(
+                    requireContext(),
+                    "No Internet Connection",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 
@@ -125,58 +142,63 @@ class HomeFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     private fun setDataToViews(weatherResponse: WeatherResponse) {
         setLocationNameByGeoCoder(weatherResponse)
-        Functions.setIcon(weatherResponse.currentDay.weather[0].icon, binding.ivWeather)
+        Functions.setIcon(weatherResponse.current.weather[0].icon, binding.ivWeather)
 
         makeViewsVisible()
         binding.apply {
             if (sharedPreferences.getString(Constants.LANGUAGE, "null") == Constants.ARABIC) {
-                tvDate.text = Functions.fromUnixToString(weatherResponse.currentDay.dt, "ar")
-            }else{
-                tvDate.text = Functions.fromUnixToString(weatherResponse.currentDay.dt, "en")
+                tvDate.text = Functions.fromUnixToString(weatherResponse.current.dt, "ar")
+            } else {
+                tvDate.text = Functions.fromUnixToString(weatherResponse.current.dt, "en")
             }
             when (sharedPreferences.getString(Constants.TEMPERATURE, "null")) {
                 Constants.KELVIN -> tvCurrentDegree.text = String.format(
                     "%.1f°${getString(R.string.k)}",
-                    weatherResponse.currentDay.temp + 273.15
+                    weatherResponse.current.temp + 273.15
                 )
 
                 Constants.FAHRENHEIT -> tvCurrentDegree.text = String.format(
                     "%.1f°${getString(R.string.f)}",
-                    weatherResponse.currentDay.temp * 9 / 5 + 32
+                    weatherResponse.current.temp * 9 / 5 + 32
                 )
 
                 else -> tvCurrentDegree.text =
-                    String.format("%.1f°${getString(R.string.c)}", weatherResponse.currentDay.temp)
+                    String.format("%.1f°${getString(R.string.c)}", weatherResponse.current.temp)
             }
-            tvWeatherStatus.text = weatherResponse.currentDay.weather[0].description
+            tvWeatherStatus.text = weatherResponse.current.weather[0].description
             tvDynamicPressure.text =
-                String.format("%d %s", weatherResponse.currentDay.pressure, getString(R.string.hpa))
+                String.format("%d %s", weatherResponse.current.pressure, getString(R.string.hpa))
             tvDynamicHumidity.text = String.format(
                 "%d %s",
-                weatherResponse.currentDay.humidity,
+                weatherResponse.current.humidity,
                 getString(R.string.percentage)
             )
             when (sharedPreferences.getString(Constants.WIND_SPEED, "null")) {
                 Constants.MILE_HOUR -> tvDynamicWind.text = String.format(
                     "%.1f ${getString(R.string.mile_hour)}",
-                    weatherResponse.currentDay.wind_speed * 2.237
+                    weatherResponse.current.wind_speed * 2.237
                 )
 
                 else -> tvDynamicWind.text = String.format(
                     "%.1f ${getString(R.string.meter_sec)}",
-                    weatherResponse.currentDay.wind_speed
+                    weatherResponse.current.wind_speed
                 )
             }
 
-            tvDynamicCloud.text = String.format("%d %s", weatherResponse.currentDay.clouds, getString(R.string.percentage))
-            tvDynamicViolet.text = String.format("%.1f", weatherResponse.currentDay.uvi)
-            tvDynamicVisibility.text = String.format("%d %s", weatherResponse.currentDay.visibility, getString(R.string.m))
-            hourlyRecyclerAdapter.submitList(weatherResponse.hours)
+            tvDynamicCloud.text = String.format(
+                "%d %s",
+                weatherResponse.current.clouds,
+                getString(R.string.percentage)
+            )
+            tvDynamicViolet.text = String.format("%.1f", weatherResponse.current.uvi)
+            tvDynamicVisibility.text =
+                String.format("%d %s", weatherResponse.current.visibility, getString(R.string.m))
+            hourlyRecyclerAdapter.submitList(weatherResponse.hourly)
             dailyRecyclerAdapter.submitList(
-                weatherResponse.days
+                weatherResponse.daily
                     .filterIndexed { index, _ -> index != 0 }
                     .sortedWith(compareBy { it.dt })
-                    //.sortedBy { day -> weatherResponse.days.indexOf(day) }
+                //.sortedBy { day -> weatherResponse.days.indexOf(day) }
             )
         }
 
@@ -202,8 +224,8 @@ class HomeFragment : Fragment() {
         try {
             val x =
                 Geocoder(requireContext()).getFromLocation(
-                    weatherResponse.latitude,
-                    weatherResponse.longitude,
+                    weatherResponse.lat,
+                    weatherResponse.lon,
                     5
                 )
 
@@ -211,10 +233,10 @@ class HomeFragment : Fragment() {
                 binding.tvLocationName.text = x[0].locality
                 Log.d(TAG, "setLocationNameByGeoCoder: ${x[0].locality}")
             } else {
-                binding.tvLocationName.text = weatherResponse.zoneName
+                binding.tvLocationName.text = weatherResponse.timezone
             }
         } catch (e: Exception) {
-            binding.tvLocationName.text = weatherResponse.zoneName
+            binding.tvLocationName.text = weatherResponse.timezone
         }
     }
 }

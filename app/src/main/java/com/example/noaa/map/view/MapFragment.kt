@@ -63,54 +63,66 @@ class MapFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         googleMapHandler()
 
-        sharedPreferences = view.context.getSharedPreferences(Constants.SETTING, AppCompatActivity.MODE_PRIVATE)
+        sharedPreferences =
+            view.context.getSharedPreferences(Constants.SETTING, AppCompatActivity.MODE_PRIVATE)
         val factory = SharedViewModelFactory(
             Repo.getInstance(
                 RemoteSource, LocationClient.getInstance(
                     LocationServices.getFusedLocationProviderClient(view.context),
                 ),
                 ConcreteLocalSource.getInstance()
-            ), sharedPreferences)
+            ), sharedPreferences
+        )
         sharedViewModel = ViewModelProvider(requireActivity(), factory)[SharedViewModel::class.java]
         val kind = MapFragmentArgs.fromBundle(requireArguments()).kind
         binding.btnSaveLocation.setOnClickListener {
-            if (coordinate != null) {
-                if (kind == Constants.REGULAR) {
-                    if(sharedPreferences.getString(Constants.LANGUAGE, "null") == Constants.ARABIC){
-                        sharedViewModel.getWeatherData(coordinate!!, "ar")
-                    }else{
-                        sharedViewModel.getWeatherData(coordinate!!, "en")
-                    }
-                    sharedViewModel.setLocationData(coordinate!!)
-                    navigateBack()
-                } else {
-                    var cityName = "UnKnown Location"
-                    try {
-                        val x = Geocoder(requireContext()).getFromLocation(
-                            coordinate!!.latitude,
-                            coordinate!!.longitude,
-                            5
-                        )
-
-                        if (x != null && x[0].locality != null) {
-                            cityName = "${x[0].countryName} / ${x[0].locality}"
-                        } else if (x != null) {
-                            cityName = "${x[0].countryName} / ${x[0].adminArea}"
+            if (sharedViewModel.checkConnection(requireContext())) {
+                if (coordinate != null) {
+                    if (kind == Constants.REGULAR) {
+                        if (sharedPreferences.getString(
+                                Constants.LANGUAGE,
+                                "null"
+                            ) == Constants.ARABIC
+                        ) {
+                            sharedViewModel.getWeatherData(coordinate!!, "ar")
+                        } else {
+                            sharedViewModel.getWeatherData(coordinate!!, "en")
                         }
-                    } catch (_: Exception) {
-                    }
-                    sharedViewModel.insertPlaceToFav(
-                        requireContext(),
-                        Place(
-                            cityName = cityName,
-                            latitude = coordinate!!.latitude,
-                            longitude = coordinate!!.longitude
+                        sharedViewModel.setLocationData(coordinate!!)
+                        navigateBack()
+                    } else {
+                        var cityName = "UnKnown Location"
+                        try {
+                            val x = Geocoder(requireContext()).getFromLocation(
+                                coordinate!!.latitude,
+                                coordinate!!.longitude,
+                                5
+                            )
+
+                            if (x != null && x[0].locality != null) {
+                                cityName = "${x[0].countryName} / ${x[0].locality}"
+                            } else if (x != null) {
+                                cityName = "${x[0].countryName} / ${x[0].adminArea}"
+                            }
+                        } catch (_: Exception) {
+                        }
+                        sharedViewModel.insertPlaceToFav(
+                            requireContext(),
+                            Place(
+                                cityName = cityName,
+                                latitude = coordinate!!.latitude,
+                                longitude = coordinate!!.longitude
+                            )
                         )
-                    )
-                    navigateBack()
+                        navigateBack()
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "please pick location", Toast.LENGTH_SHORT)
+                        .show()
                 }
-            } else {
-                Toast.makeText(requireContext(), "please pick location", Toast.LENGTH_SHORT).show()
+            }else{
+                Toast.makeText(requireContext(), "No Internet Connection", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
 

@@ -20,4 +20,10 @@ interface RepoInterface {
     suspend fun deletePlaceFromFav(context: Context, place: Place)
 
     fun getAllFavouritePlaces(context: Context): Flow<List<Place>>
+
+    suspend fun insertCashedData(context: Context, weatherResponse: WeatherResponse)
+
+    suspend fun deleteCashedData(context: Context)
+
+    fun getCashedData(context: Context): Flow<WeatherResponse>
 }

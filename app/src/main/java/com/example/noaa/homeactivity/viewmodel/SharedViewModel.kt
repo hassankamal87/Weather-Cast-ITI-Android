@@ -9,6 +9,7 @@ import com.example.noaa.homeactivity.view.TAG
 import com.example.noaa.model.Coordinate
 import com.example.noaa.model.Place
 import com.example.noaa.model.RepoInterface
+import com.example.noaa.model.WeatherResponse
 import com.example.noaa.services.network.ApiState
 import com.example.noaa.utilities.Constants
 import com.example.noaa.utilities.LocationUtility
@@ -63,30 +64,35 @@ class SharedViewModel(
 
     fun getLocation(context: Context) {
         Log.w(TAG, "getLocation: timmme")
-        when (sharedPreferences.getString(Constants.LOCATION, "null")) {
-            Constants.GPS -> {
-                if (LocationUtility.checkPermission(context)) {
-                    if (LocationUtility.isLocationIsEnabled(context)) {
-                        viewModelScope.launch {
-                            repo.getCurrentLocation().collectLatest {
-                                _coordinateMutableStateFlow.value = it
+        if (LocationUtility.checkConnection(context)) {
+            when (sharedPreferences.getString(Constants.LOCATION, "null")) {
+                Constants.GPS -> {
+                    if (LocationUtility.checkPermission(context)) {
+                        if (LocationUtility.isLocationIsEnabled(context)) {
+                            viewModelScope.launch {
+                                repo.getCurrentLocation().collectLatest {
+                                    _coordinateMutableStateFlow.value = it
+                                }
                             }
+                        } else {
+                            _locationStatusMutableStateFlow.value = Constants.SHOW_DIALOG
                         }
                     } else {
-                        _locationStatusMutableStateFlow.value = Constants.SHOW_DIALOG
+                        _locationStatusMutableStateFlow.value = Constants.REQUEST_PERMISSION
                     }
-                } else {
-                    _locationStatusMutableStateFlow.value = Constants.REQUEST_PERMISSION
+                }
+
+                Constants.MAP -> {
+                    _locationStatusMutableStateFlow.value = Constants.TRANSITION_TO_MAP
+                }
+
+                else -> {
+                    _locationStatusMutableStateFlow.value = Constants.SHOW_INITIAL_DIALOG
                 }
             }
-
-            Constants.MAP -> {
-                _locationStatusMutableStateFlow.value = Constants.TRANSITION_TO_MAP
-            }
-
-            else -> {
-                _locationStatusMutableStateFlow.value = Constants.SHOW_INITIAL_DIALOG
-            }
+        } else {
+            //   _locationStatusMutableStateFlow.value = Constants.SHOW_CASHED_DATA
+            getCashedData(context)
         }
     }
 
@@ -126,4 +132,27 @@ class SharedViewModel(
             }
         }
     }
+
+    fun insertCashedData(context: Context, weatherResponse: WeatherResponse) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.insertCashedData(context, weatherResponse)
+        }
+    }
+
+    private fun getCashedData(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.getCashedData(context).collect {
+                try {
+                    _weatherResponseMutableStateFlow.value = ApiState.Success(it)
+                }catch (_:Exception){
+                    _weatherResponseMutableStateFlow.value = ApiState.Failure("No Internet Connection")
+                }
+            }
+        }
+    }
+
+    fun checkConnection(context: Context): Boolean {
+        return LocationUtility.checkConnection(context)
+    }
+
 }

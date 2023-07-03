@@ -52,5 +52,17 @@ class Repo private constructor(
         return localSource.getAllFavouritePlaces(context)
     }
 
+    override suspend fun insertCashedData(context: Context, weatherResponse: WeatherResponse) {
+        localSource.insertCashedData(context, weatherResponse)
+    }
+
+    override suspend fun deleteCashedData(context: Context) {
+        localSource.deleteCashedData(context)
+    }
+
+    override fun getCashedData(context: Context): Flow<WeatherResponse> {
+        return localSource.getCashedData(context)
+    }
+
 
 }

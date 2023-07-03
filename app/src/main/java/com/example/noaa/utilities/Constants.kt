@@ -5,6 +5,7 @@ object Constants {
     const val REQUEST_PERMISSION = "requestPermission"
     const val SHOW_INITIAL_DIALOG = "showInitialDialog"
     const val TRANSITION_TO_MAP = "transitionToMap"
+    const val SHOW_CASHED_DATA = "showCashedData"
 
     const val SETTING = "setting"
     const val LOCATION_DATA = "location_data"

@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.noaa.model.Place
+import com.example.noaa.model.WeatherResponse
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -18,4 +19,14 @@ interface FavouriteDao {
 
     @Query("SELECT * FROM place")
     fun getAllFavouritePlaces(): Flow<List<Place>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCashedData(weatherResponse: WeatherResponse)
+
+    @Query("DELETE FROM WeatherResponse")
+    suspend fun deleteCashedData()
+
+    @Query("SELECT * FROM WeatherResponse")
+    fun getCashedData(): Flow<WeatherResponse>
+
 }

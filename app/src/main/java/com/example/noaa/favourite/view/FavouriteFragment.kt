@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -104,8 +105,12 @@ class FavouriteFragment : Fragment() {
 
         favouriteRecyclerAdapter = FavouriteRecyclerAdapter(){
             // navigate to details fragment
-            val action = FavouriteFragmentDirections.actionFavouriteFragmentToDetailsFragment(it)
-            view.findNavController().navigate(action)
+            if(sharedViewModel.checkConnection(requireContext())){
+                val action = FavouriteFragmentDirections.actionFavouriteFragmentToDetailsFragment(it)
+                view.findNavController().navigate(action)
+            }else{
+                Toast.makeText(requireContext(), "No Internet Connection", Toast.LENGTH_SHORT).show()
+            }
         }
         binding.rvFavourite.adapter = favouriteRecyclerAdapter
 
