@@ -22,15 +22,15 @@ class FavouriteViewModel(private val repo: RepoInterface) : ViewModel() {
         return LocationUtility.checkConnection(context)
     }
 
-    fun deletePlaceFromFav(context: Context, place: Place) {
+    fun deletePlaceFromFav(place: Place) {
         viewModelScope.launch(Dispatchers.IO) {
-            repo.deletePlaceFromFav(context, place)
+            repo.deletePlaceFromFav(place)
         }
     }
 
-    fun getAllFavouritePlaces(context: Context) {
+    fun getAllFavouritePlaces() {
         viewModelScope.launch(Dispatchers.IO) {
-            repo.getAllFavouritePlaces(context).collectLatest {
+            repo.getAllFavouritePlaces().collectLatest {
                 _favouritePlacesMutableStateFlow.value = it
             }
         }

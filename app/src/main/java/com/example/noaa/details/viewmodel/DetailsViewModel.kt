@@ -36,7 +36,7 @@ class DetailsViewModel(
         }
     }
 
-    fun readStringFromSettingSP(key: String, context: Context): String{
-        return SettingSharedPref.getInstance(context).readStringFromSettingSP(key)
+    fun readStringFromSettingSP(key: String): String{
+        return repo.readStringFromSettingSP(key)
     }
 }

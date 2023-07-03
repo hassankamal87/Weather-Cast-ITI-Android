@@ -22,6 +22,7 @@ import com.example.noaa.services.db.ConcreteLocalSource
 import com.example.noaa.services.location.LocationClient
 import com.example.noaa.services.network.ApiState
 import com.example.noaa.services.network.RemoteSource
+import com.example.noaa.services.sharepreferences.SettingSharedPref
 import com.example.noaa.utilities.Constants
 import com.example.noaa.utilities.Functions
 import com.google.android.gms.location.LocationServices
@@ -37,14 +38,11 @@ class HomeFragment : Fragment() {
     private lateinit var hourlyRecyclerAdapter: HourlyRecyclerAdapter
     private lateinit var dailyRecyclerAdapter: DailyRecyclerAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
@@ -60,7 +58,8 @@ class HomeFragment : Fragment() {
             Repo.getInstance(
                 RemoteSource,
                 LocationClient.getInstance(LocationServices.getFusedLocationProviderClient(view.context)),
-                ConcreteLocalSource.getInstance()
+                ConcreteLocalSource.getInstance(requireContext()),
+                SettingSharedPref.getInstance(requireContext())
             )
         )
         sharedViewModel = ViewModelProvider(requireActivity(), factory)[SharedViewModel::class.java]
@@ -79,7 +78,7 @@ class HomeFragment : Fragment() {
                             setDataToViews(it.weatherResponse)
                         }
                         if (sharedViewModel.checkConnection(requireContext())) {
-                            sharedViewModel.insertCashedData(requireContext(), it.weatherResponse)
+                            sharedViewModel.insertCashedData(it.weatherResponse)
                         }
                     }
 
@@ -104,11 +103,7 @@ class HomeFragment : Fragment() {
         }
 
         //for near me iconBtn
-        if (sharedViewModel.readStringFromSettingSP(
-                Constants.LOCATION,
-                requireContext()
-            ) == Constants.MAP
-        ) {
+        if (sharedViewModel.readStringFromSettingSP(Constants.LOCATION) == Constants.MAP) {
             binding.ivNearMe.visibility = View.VISIBLE
         }
         binding.ivNearMe.setOnClickListener {
@@ -116,8 +111,7 @@ class HomeFragment : Fragment() {
                 binding.prProgress.visibility = View.VISIBLE
                 sharedViewModel.writeStringToSettingSP(
                     Constants.LOCATION,
-                    Constants.GPS,
-                    requireContext()
+                    Constants.GPS
                 )
                 sharedViewModel.getLocation(view.context)
                 binding.ivNearMe.visibility = View.GONE
@@ -152,19 +146,13 @@ class HomeFragment : Fragment() {
             tvDynamicViolet.text = String.format("%.1f", weatherResponse.current.uvi)
             tvDynamicVisibility.text = String.format("%d %s", weatherResponse.current.visibility, getString(R.string.m))
 
-            if (sharedViewModel.readStringFromSettingSP(
-                    Constants.LANGUAGE,
-                    requireContext()
-                ) == Constants.ARABIC
-            ) {
+            if (sharedViewModel.readStringFromSettingSP(Constants.LANGUAGE) == Constants.ARABIC) {
                 tvDate.text = Functions.fromUnixToString(weatherResponse.current.dt, "ar")
             } else {
                 tvDate.text = Functions.fromUnixToString(weatherResponse.current.dt, "en")
             }
-            when (sharedViewModel.readStringFromSettingSP(
-                Constants.TEMPERATURE,
-                requireContext()
-            )) {
+
+            when (sharedViewModel.readStringFromSettingSP(Constants.TEMPERATURE)) {
                 Constants.KELVIN -> tvCurrentDegree.text = String.format(
                     "%.1f°${getString(R.string.k)}",
                     weatherResponse.current.temp + 273.15
@@ -179,7 +167,7 @@ class HomeFragment : Fragment() {
                     String.format("%.1f°${getString(R.string.c)}", weatherResponse.current.temp)
             }
 
-            when (sharedViewModel.readStringFromSettingSP(Constants.WIND_SPEED, requireContext())) {
+            when (sharedViewModel.readStringFromSettingSP(Constants.WIND_SPEED)) {
                 Constants.MILE_HOUR -> tvDynamicWind.text = String.format(
                     "%.1f ${getString(R.string.mile_hour)}",
                     weatherResponse.current.wind_speed * 2.237

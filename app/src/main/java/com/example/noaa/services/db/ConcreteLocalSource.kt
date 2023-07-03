@@ -5,39 +5,43 @@ import com.example.noaa.model.Place
 import com.example.noaa.model.WeatherResponse
 import kotlinx.coroutines.flow.Flow
 
-class ConcreteLocalSource private constructor(): LocalSource {
+class ConcreteLocalSource private constructor(context: Context): LocalSource {
+
+    private val favouriteDao: FavouriteDao by lazy {
+        FavouriteDatabase.getInstance(context).getDao()
+    }
 
     companion object{
         private var instance: ConcreteLocalSource? = null
 
-        fun getInstance(): ConcreteLocalSource{
-            return instance?: ConcreteLocalSource().also {
+        fun getInstance(context: Context): ConcreteLocalSource{
+            return instance?: ConcreteLocalSource(context).also {
                 instance = it
             }
         }
     }
 
-    override suspend fun insertPlaceToFav(context: Context, place: Place) {
-        FavouriteDatabase.getInstance(context).getDao().insertPlaceToFav(place)
+    override suspend fun insertPlaceToFav(place: Place) {
+        favouriteDao.insertPlaceToFav(place)
     }
 
-    override suspend fun deletePlaceFromFav(context: Context, place: Place) {
-        FavouriteDatabase.getInstance(context).getDao().deletePlaceFromFav(place)
+    override suspend fun deletePlaceFromFav(place: Place) {
+        favouriteDao.deletePlaceFromFav(place)
     }
 
-    override fun getAllFavouritePlaces(context: Context): Flow<List<Place>> {
-        return FavouriteDatabase.getInstance(context).getDao().getAllFavouritePlaces()
+    override fun getAllFavouritePlaces(): Flow<List<Place>> {
+        return favouriteDao.getAllFavouritePlaces()
     }
 
-    override suspend fun insertCashedData(context: Context, weatherResponse: WeatherResponse) {
-        FavouriteDatabase.getInstance(context).getDao().insertCashedData(weatherResponse)
+    override suspend fun insertCashedData(weatherResponse: WeatherResponse) {
+        favouriteDao.insertCashedData(weatherResponse)
     }
 
-    override suspend fun deleteCashedData(context: Context) {
-        FavouriteDatabase.getInstance(context).getDao().deleteCashedData()
+    override suspend fun deleteCashedData() {
+        favouriteDao.deleteCashedData()
     }
 
-    override fun getCashedData(context: Context): Flow<WeatherResponse> {
-        return FavouriteDatabase.getInstance(context).getDao().getCashedData()
+    override fun getCashedData(): Flow<WeatherResponse> {
+        return favouriteDao.getCashedData()
     }
 }

@@ -5,13 +5,16 @@ import com.example.noaa.services.db.ConcreteLocalSource
 import com.example.noaa.services.db.LocalSource
 import com.example.noaa.services.location.LocationClientInterface
 import com.example.noaa.services.network.ConcreteRemoteSource
+import com.example.noaa.services.sharepreferences.SettingSPInterface
+import com.example.noaa.services.sharepreferences.SettingSharedPref
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 
 class Repo private constructor(
     private val remoteSource: ConcreteRemoteSource,
     private val locationClient: LocationClientInterface,
-    private val localSource: LocalSource
+    private val localSource: LocalSource,
+    private val sharedSetting: SettingSPInterface
 ) : RepoInterface {
 
     companion object {
@@ -20,10 +23,11 @@ class Repo private constructor(
         fun getInstance(
             remoteSource: ConcreteRemoteSource,
             locationClient: LocationClientInterface,
-            localSource: LocalSource
+            localSource: LocalSource,
+            sharedSetting: SettingSPInterface
         ): Repo {
             return instance ?: synchronized(this) {
-                instance ?: Repo(remoteSource, locationClient, localSource).also { instance = it }
+                instance ?: Repo(remoteSource, locationClient, localSource, sharedSetting).also { instance = it }
             }
         }
 
@@ -40,28 +44,44 @@ class Repo private constructor(
         return locationClient.getCurrentLocation()
     }
 
-    override suspend fun insertPlaceToFav(context: Context, place: Place) {
-        localSource.insertPlaceToFav(context, place)
+    override suspend fun insertPlaceToFav(place: Place) {
+        localSource.insertPlaceToFav(place)
     }
 
-    override suspend fun deletePlaceFromFav(context: Context, place: Place) {
-        localSource.deletePlaceFromFav(context, place)
+    override suspend fun deletePlaceFromFav(place: Place) {
+        localSource.deletePlaceFromFav(place)
     }
 
-    override fun getAllFavouritePlaces(context: Context): Flow<List<Place>> {
-        return localSource.getAllFavouritePlaces(context)
+    override fun getAllFavouritePlaces(): Flow<List<Place>> {
+        return localSource.getAllFavouritePlaces()
     }
 
-    override suspend fun insertCashedData(context: Context, weatherResponse: WeatherResponse) {
-        localSource.insertCashedData(context, weatherResponse)
+    override suspend fun insertCashedData(weatherResponse: WeatherResponse) {
+        localSource.insertCashedData(weatherResponse)
     }
 
-    override suspend fun deleteCashedData(context: Context) {
-        localSource.deleteCashedData(context)
+    override suspend fun deleteCashedData() {
+        localSource.deleteCashedData()
     }
 
-    override fun getCashedData(context: Context): Flow<WeatherResponse> {
-        return localSource.getCashedData(context)
+    override fun getCashedData(): Flow<WeatherResponse> {
+        return localSource.getCashedData()
+    }
+
+    override fun writeStringToSettingSP(key: String, value: String) {
+        sharedSetting.writeStringToSettingSP(key, value)
+    }
+
+    override fun readStringFromSettingSP(key: String): String {
+        return sharedSetting.readStringFromSettingSP(key)
+    }
+
+    override fun writeFloatToSettingSP(key: String, value: Float) {
+        sharedSetting.writeFloatToSettingSP(key, value)
+    }
+
+    override fun readFloatFromSettingSP(key: String): Float {
+        return sharedSetting.readFloatFromSettingSP(key)
     }
 
 

@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
@@ -32,13 +31,12 @@ import com.example.noaa.services.network.RemoteSource
 import com.example.noaa.services.sharepreferences.SettingSharedPref
 import com.example.noaa.utilities.Functions
 import com.google.android.gms.location.LocationServices
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-public const val TAG = "hassankamal"
+const val TAG = "hassankamal"
 const val My_LOCATION_PERMISSION_ID = 5005
 
 class HomeActivity : AppCompatActivity() {
@@ -56,7 +54,8 @@ class HomeActivity : AppCompatActivity() {
             Repo.getInstance(
                 RemoteSource,
                 LocationClient.getInstance(LocationServices.getFusedLocationProviderClient(this)),
-                ConcreteLocalSource.getInstance()
+                ConcreteLocalSource.getInstance(this),
+                SettingSharedPref.getInstance(this)
             )
         )
 
@@ -86,10 +85,7 @@ class HomeActivity : AppCompatActivity() {
                 Log.w(TAG, "onViewCreated: from fragment ${it.latitude}")
                 Log.w(TAG, "onViewCreated: from fragment ${it.longitude}")
                 if (it.latitude != 0.0) {
-                    if (sharedViewModel.readStringFromSettingSP(
-                            Constants.LANGUAGE, this@HomeActivity
-                        ) == Constants.ARABIC
-                    ) {
+                    if (sharedViewModel.readStringFromSettingSP(Constants.LANGUAGE) == Constants.ARABIC) {
                         sharedViewModel.getWeatherData(Coordinate(it.latitude, it.longitude), "ar")
                     } else {
                         sharedViewModel.getWeatherData(Coordinate(it.latitude, it.longitude), "en")
@@ -109,17 +105,14 @@ class HomeActivity : AppCompatActivity() {
 
     private fun transitionToMap() {
         val savedLatitude =
-            sharedViewModel.readFloatFromSettingSP(Constants.LATITUDE, this).toDouble()
+            sharedViewModel.readFloatFromSettingSP(Constants.LATITUDE).toDouble()
         val savedLongitude =
-            sharedViewModel.readFloatFromSettingSP(Constants.LONGITUDE, this).toDouble()
+            sharedViewModel.readFloatFromSettingSP(Constants.LONGITUDE).toDouble()
         Log.d(TAG, "onResume: transition to map")
         if (savedLatitude == 0.0) {
             navController.navigate(R.id.mapFragment)
         } else {
-            if (sharedViewModel.readStringFromSettingSP(
-                    Constants.LANGUAGE,
-                    this
-                ) == Constants.ARABIC
+            if (sharedViewModel.readStringFromSettingSP(Constants.LANGUAGE) == Constants.ARABIC
             ) {
                 sharedViewModel.getWeatherData(Coordinate(savedLatitude, savedLongitude), "ar")
             } else {
@@ -168,9 +161,9 @@ class HomeActivity : AppCompatActivity() {
                 bindingInitialLayoutDialog.radioGroupSettingLocationInitial.checkedRadioButtonId
 
             if (checkedBtn == bindingInitialLayoutDialog.radioSettingGpsInitial.id) {
-                sharedViewModel.writeStringToSettingSP(Constants.LOCATION, Constants.GPS, this)
+                sharedViewModel.writeStringToSettingSP(Constants.LOCATION, Constants.GPS)
             } else {
-                sharedViewModel.writeStringToSettingSP(Constants.LOCATION, Constants.MAP, this)
+                sharedViewModel.writeStringToSettingSP(Constants.LOCATION, Constants.MAP)
             }
             sharedViewModel.getLocation(this)
 
@@ -180,7 +173,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun setDefaultLanguage() {
-        if (sharedViewModel.readStringFromSettingSP(Constants.LANGUAGE, this) == Constants.ARABIC) {
+        if (sharedViewModel.readStringFromSettingSP(Constants.LANGUAGE) == Constants.ARABIC) {
             Functions.changeLanguage(this, "ar")
         } else {
             Functions.changeLanguage(this, "en")

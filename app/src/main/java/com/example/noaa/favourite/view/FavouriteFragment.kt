@@ -1,15 +1,12 @@
 package com.example.noaa.favourite.view
 
-import android.graphics.Color
+
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -18,16 +15,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.noaa.databinding.FragmentFavouriteBinding
 import com.example.noaa.favourite.viewmodel.FavouriteViewModel
 import com.example.noaa.favourite.viewmodel.FavouriteViewModelFactory
-import com.example.noaa.homeactivity.viewmodel.SharedViewModel
-import com.example.noaa.homeactivity.viewmodel.SharedViewModelFactory
 import com.example.noaa.model.Place
 import com.example.noaa.model.Repo
 import com.example.noaa.services.db.ConcreteLocalSource
 import com.example.noaa.services.location.LocationClient
 import com.example.noaa.services.network.RemoteSource
+import com.example.noaa.services.sharepreferences.SettingSharedPref
 import com.example.noaa.utilities.Constants
 import com.google.android.gms.location.LocationServices
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -38,15 +33,11 @@ class FavouriteFragment : Fragment() {
     lateinit var favouriteRecyclerAdapter: FavouriteRecyclerAdapter
     lateinit var favouriteViewModel: FavouriteViewModel
     lateinit var place: Place
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentFavouriteBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -67,11 +58,12 @@ class FavouriteFragment : Fragment() {
             Repo.getInstance(
                 RemoteSource,
                 LocationClient.getInstance(LocationServices.getFusedLocationProviderClient(view.context)),
-                ConcreteLocalSource.getInstance()
+                ConcreteLocalSource.getInstance(requireContext()),
+                SettingSharedPref.getInstance(requireContext())
             )
         )
         favouriteViewModel = ViewModelProvider(this, factory)[FavouriteViewModel::class.java]
-        favouriteViewModel.getAllFavouritePlaces(requireContext())
+        favouriteViewModel.getAllFavouritePlaces()
 
 
         val itemTouchHelperCallBack = object : ItemTouchHelper.SimpleCallback(
@@ -89,7 +81,7 @@ class FavouriteFragment : Fragment() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
                 place = favouriteRecyclerAdapter.currentList[position]
-                favouriteViewModel.deletePlaceFromFav(view.context, place)
+                favouriteViewModel.deletePlaceFromFav(place)
                 /*Snackbar.make(view, "deleting Location.... ", Snackbar.LENGTH_LONG).apply {
                     setAction("Confirm") {
                         sharedViewModel.insertPlaceToFav(view.context, place)
@@ -102,7 +94,7 @@ class FavouriteFragment : Fragment() {
         val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallBack)
         itemTouchHelper.attachToRecyclerView(binding.rvFavourite)
 
-        favouriteRecyclerAdapter = FavouriteRecyclerAdapter() {
+        favouriteRecyclerAdapter = FavouriteRecyclerAdapter {
             // navigate to details fragment
             if (favouriteViewModel.checkConnection(requireContext())) {
                 val action =

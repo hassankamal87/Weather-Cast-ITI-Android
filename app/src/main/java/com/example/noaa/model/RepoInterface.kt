@@ -15,15 +15,23 @@ interface RepoInterface {
 
     fun getCurrentLocation():Flow<Coordinate>
 
-    suspend fun insertPlaceToFav(context: Context, place: Place)
+    suspend fun insertPlaceToFav(place: Place)
 
-    suspend fun deletePlaceFromFav(context: Context, place: Place)
+    suspend fun deletePlaceFromFav(place: Place)
 
-    fun getAllFavouritePlaces(context: Context): Flow<List<Place>>
+    fun getAllFavouritePlaces(): Flow<List<Place>>
 
-    suspend fun insertCashedData(context: Context, weatherResponse: WeatherResponse)
+    suspend fun insertCashedData(weatherResponse: WeatherResponse)
 
-    suspend fun deleteCashedData(context: Context)
+    suspend fun deleteCashedData()
 
-    fun getCashedData(context: Context): Flow<WeatherResponse>
+    fun getCashedData(): Flow<WeatherResponse>
+
+    fun writeStringToSettingSP(key: String, value: String)
+
+    fun readStringFromSettingSP(key: String): String
+
+    fun writeFloatToSettingSP(key: String, value: Float)
+
+    fun readFloatFromSettingSP(key: String): Float
 }

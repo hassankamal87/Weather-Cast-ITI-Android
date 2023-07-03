@@ -6,15 +6,15 @@ import com.example.noaa.model.WeatherResponse
 import kotlinx.coroutines.flow.Flow
 
 interface LocalSource {
-    suspend fun insertPlaceToFav(context: Context, place: Place)
+    suspend fun insertPlaceToFav(place: Place)
 
-    suspend fun deletePlaceFromFav(context: Context, place: Place)
+    suspend fun deletePlaceFromFav(place: Place)
 
-    fun getAllFavouritePlaces(context: Context): Flow<List<Place>>
+    fun getAllFavouritePlaces(): Flow<List<Place>>
 
-    suspend fun insertCashedData(context: Context, weatherResponse: WeatherResponse)
+    suspend fun insertCashedData(weatherResponse: WeatherResponse)
 
-    suspend fun deleteCashedData(context: Context)
+    suspend fun deleteCashedData()
 
-    fun getCashedData(context: Context): Flow<WeatherResponse>
+    fun getCashedData(): Flow<WeatherResponse>
 }

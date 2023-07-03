@@ -1,7 +1,6 @@
 package com.example.noaa.details.view
 
 import android.annotation.SuppressLint
-import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -19,8 +18,6 @@ import com.example.noaa.home.view.DailyRecyclerAdapter
 import com.example.noaa.home.view.HourlyRecyclerAdapter
 import com.example.noaa.homeactivity.view.HomeActivity
 import com.example.noaa.homeactivity.view.TAG
-import com.example.noaa.homeactivity.viewmodel.SharedViewModel
-import com.example.noaa.homeactivity.viewmodel.SharedViewModelFactory
 import com.example.noaa.model.Coordinate
 import com.example.noaa.model.Repo
 import com.example.noaa.model.WeatherResponse
@@ -28,6 +25,7 @@ import com.example.noaa.services.db.ConcreteLocalSource
 import com.example.noaa.services.location.LocationClient
 import com.example.noaa.services.network.ApiState
 import com.example.noaa.services.network.RemoteSource
+import com.example.noaa.services.sharepreferences.SettingSharedPref
 import com.example.noaa.utilities.Constants
 import com.example.noaa.utilities.Functions
 import com.google.android.gms.location.LocationServices
@@ -39,10 +37,10 @@ import kotlinx.coroutines.withContext
 
 class DetailsFragment : Fragment() {
 
-    lateinit var binding: FragmentDetailsBinding
-    lateinit var detailViewModel: DetailsViewModel
-    lateinit var hourlyRecyclerAdapter: HourlyRecyclerAdapter
-    lateinit var dailyRecyclerAdapter: DailyRecyclerAdapter
+    private lateinit var binding: FragmentDetailsBinding
+    private lateinit var detailViewModel: DetailsViewModel
+    private lateinit var hourlyRecyclerAdapter: HourlyRecyclerAdapter
+    private lateinit var dailyRecyclerAdapter: DailyRecyclerAdapter
 
     override fun onStart() {
         super.onStart()
@@ -50,14 +48,11 @@ class DetailsFragment : Fragment() {
         homeActivity.binding.bottomNavigation.visibility = View.GONE
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -72,15 +67,12 @@ class DetailsFragment : Fragment() {
                 RemoteSource, LocationClient.getInstance(
                     LocationServices.getFusedLocationProviderClient(view.context),
                 ),
-                ConcreteLocalSource.getInstance()
+                ConcreteLocalSource.getInstance(requireContext()),
+                SettingSharedPref.getInstance(requireContext())
             )
         )
         detailViewModel = ViewModelProvider(this, factory)[DetailsViewModel::class.java]
-        if (detailViewModel.readStringFromSettingSP(
-                Constants.LANGUAGE,
-                requireContext()
-            ) == Constants.ARABIC
-        ) {
+        if (detailViewModel.readStringFromSettingSP(Constants.LANGUAGE) == Constants.ARABIC) {
             detailViewModel.getWeatherData(Coordinate(place.latitude, place.longitude), "ar")
         } else {
             detailViewModel.getWeatherData(Coordinate(place.latitude, place.longitude), "en")
@@ -148,20 +140,13 @@ class DetailsFragment : Fragment() {
             tvDynamicVisibilityDetails.text =
                 String.format("%d %s", weatherResponse.current.visibility, getString(R.string.m))
 
-            if (detailViewModel.readStringFromSettingSP(
-                    Constants.LANGUAGE,
-                    requireContext()
-                ) == Constants.ARABIC
-            ) {
+            if (detailViewModel.readStringFromSettingSP(Constants.LANGUAGE) == Constants.ARABIC) {
                 tvDateDetails.text = Functions.fromUnixToString(weatherResponse.current.dt, "ar")
             } else {
                 tvDateDetails.text = Functions.fromUnixToString(weatherResponse.current.dt, "en")
             }
 
-            when (detailViewModel.readStringFromSettingSP(
-                Constants.TEMPERATURE,
-                requireContext()
-            )) {
+            when (detailViewModel.readStringFromSettingSP(Constants.TEMPERATURE)) {
                 Constants.KELVIN -> tvCurrentDegreeDetails.text = String.format(
                     "%.1f°${getString(R.string.k)}",
                     weatherResponse.current.temp + 273.15
@@ -176,7 +161,7 @@ class DetailsFragment : Fragment() {
                     String.format("%.1f°${getString(R.string.c)}", weatherResponse.current.temp)
             }
 
-            when (detailViewModel.readStringFromSettingSP(Constants.WIND_SPEED, requireContext())) {
+            when (detailViewModel.readStringFromSettingSP(Constants.WIND_SPEED)) {
                 Constants.MILE_HOUR -> tvDynamicWindDetails.text = String.format(
                     "%.1f ${getString(R.string.mile_hour)}",
                     weatherResponse.current.wind_speed * 2.237

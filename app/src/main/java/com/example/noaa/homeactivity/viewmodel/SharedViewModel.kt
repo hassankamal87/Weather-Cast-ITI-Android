@@ -39,7 +39,7 @@ class SharedViewModel(
     fun getLocation(context: Context) {
         Log.w(TAG, "getLocation: timmme")
         if (LocationUtility.checkConnection(context)) {
-            when (readStringFromSettingSP(Constants.LOCATION, context)) {
+            when (readStringFromSettingSP(Constants.LOCATION)) {
                 Constants.GPS -> {
                     if (LocationUtility.checkPermission(context)) {
                         if (LocationUtility.isLocationIsEnabled(context)) {
@@ -66,7 +66,7 @@ class SharedViewModel(
             }
         } else {
             //   _locationStatusMutableStateFlow.value = Constants.SHOW_CASHED_DATA
-            getCashedData(context)
+            getCashedData()
         }
     }
 
@@ -87,21 +87,21 @@ class SharedViewModel(
     }
 
 
-    fun insertPlaceToFav(context: Context, place: Place) {
+    fun insertPlaceToFav(place: Place) {
         viewModelScope.launch(Dispatchers.IO) {
-            repo.insertPlaceToFav(context, place)
+            repo.insertPlaceToFav(place)
         }
     }
 
-    fun insertCashedData(context: Context, weatherResponse: WeatherResponse) {
+    fun insertCashedData( weatherResponse: WeatherResponse) {
         viewModelScope.launch(Dispatchers.IO) {
-            repo.insertCashedData(context, weatherResponse)
+            repo.insertCashedData(weatherResponse)
         }
     }
 
-    private fun getCashedData(context: Context) {
+    private fun getCashedData() {
         viewModelScope.launch(Dispatchers.IO) {
-            repo.getCashedData(context).collect {
+            repo.getCashedData().collect {
                 try {
                     _weatherResponseMutableStateFlow.value = ApiState.Success(it)
                 }catch (_:Exception){
@@ -115,20 +115,20 @@ class SharedViewModel(
         return LocationUtility.checkConnection(context)
     }
 
-    fun writeStringToSettingSP(key: String, value: String, context: Context){
-        SettingSharedPref.getInstance(context).writeStringToSettingSP(key, value)
+    fun writeStringToSettingSP(key: String, value: String){
+       repo.writeStringToSettingSP(key, value)
     }
 
-    fun readStringFromSettingSP(key: String, context: Context): String{
-        return SettingSharedPref.getInstance(context).readStringFromSettingSP(key)
+    fun readStringFromSettingSP(key: String): String{
+        return repo.readStringFromSettingSP(key)
     }
 
-    fun writeFloatToSettingSP(key: String, value: Float, context: Context){
-        SettingSharedPref.getInstance(context).writeFloatToSettingSP(key, value)
+    fun writeFloatToSettingSP(key: String, value: Float){
+        repo.writeFloatToSettingSP(key, value)
     }
 
-    fun readFloatFromSettingSP(key: String, context: Context): Float{
-        return SettingSharedPref.getInstance(context).readFloatFromSettingSP(key)
+    fun readFloatFromSettingSP(key: String): Float{
+        return repo.readFloatFromSettingSP(key)
     }
 
 }

@@ -1,20 +1,17 @@
 package com.example.noaa.map.view
 
-import android.content.SharedPreferences
+
 import android.location.Geocoder
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.noaa.R
 import com.example.noaa.databinding.FragmentMapBinding
 import com.example.noaa.homeactivity.view.HomeActivity
-import com.example.noaa.homeactivity.view.TAG
 import com.example.noaa.homeactivity.viewmodel.SharedViewModel
 import com.example.noaa.homeactivity.viewmodel.SharedViewModelFactory
 import com.example.noaa.model.Coordinate
@@ -34,11 +31,10 @@ import com.google.android.gms.maps.model.MarkerOptions
 class MapFragment : Fragment() {
 
 
-    lateinit var binding: FragmentMapBinding
+    private lateinit var binding: FragmentMapBinding
     private var marker: Marker? = null
     private var coordinate: Coordinate? = null
-    lateinit var sharedViewModel: SharedViewModel
-//    lateinit var sharedPreferences: SharedPreferences
+    private lateinit var sharedViewModel: SharedViewModel
 
     override fun onStart() {
         super.onStart()
@@ -47,15 +43,11 @@ class MapFragment : Fragment() {
         homeActivity.binding.bottomNavigation.visibility = View.GONE
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentMapBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -69,7 +61,8 @@ class MapFragment : Fragment() {
                 RemoteSource, LocationClient.getInstance(
                     LocationServices.getFusedLocationProviderClient(view.context),
                 ),
-                ConcreteLocalSource.getInstance()
+                ConcreteLocalSource.getInstance(requireContext()),
+                SettingSharedPref.getInstance(requireContext())
             )
         )
         sharedViewModel = ViewModelProvider(requireActivity(), factory)[SharedViewModel::class.java]
@@ -77,26 +70,15 @@ class MapFragment : Fragment() {
         binding.btnSaveLocation.setOnClickListener {
             if (sharedViewModel.checkConnection(requireContext())) {
                 if (coordinate != null) {
+                    showProgressBar()
                     if (kind == Constants.REGULAR) {
-                        if (sharedViewModel.readStringFromSettingSP(
-                                Constants.LANGUAGE,
-                                requireContext()
-                            ) == Constants.ARABIC
-                        ) {
+                        if (sharedViewModel.readStringFromSettingSP(Constants.LANGUAGE) == Constants.ARABIC) {
                             sharedViewModel.getWeatherData(coordinate!!, "ar")
                         } else {
                             sharedViewModel.getWeatherData(coordinate!!, "en")
                         }
-                        sharedViewModel.writeFloatToSettingSP(
-                            Constants.LATITUDE,
-                            coordinate!!.latitude.toFloat(),
-                            requireContext()
-                        )
-                        sharedViewModel.writeFloatToSettingSP(
-                            Constants.LONGITUDE,
-                            coordinate!!.longitude.toFloat(),
-                            requireContext()
-                        )
+                        sharedViewModel.writeFloatToSettingSP(Constants.LATITUDE, coordinate!!.latitude.toFloat())
+                        sharedViewModel.writeFloatToSettingSP(Constants.LONGITUDE, coordinate!!.longitude.toFloat())
                         navigateBack()
                     } else {
                         var cityName = "UnKnown Location"
@@ -115,7 +97,6 @@ class MapFragment : Fragment() {
                         } catch (_: Exception) {
                         }
                         sharedViewModel.insertPlaceToFav(
-                            requireContext(),
                             Place(
                                 cityName = cityName,
                                 latitude = coordinate!!.latitude,
@@ -134,6 +115,11 @@ class MapFragment : Fragment() {
             }
         }
 
+    }
+
+    private fun showProgressBar() {
+        binding.btnSaveLocation.visibility = View.GONE
+        binding.prProgressMap.visibility = View.VISIBLE
     }
 
 

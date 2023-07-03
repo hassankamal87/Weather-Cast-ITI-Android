@@ -40,15 +40,12 @@ class AlertFragment : Fragment() {
     private var toDateLong: Long? = null
     private var toHourInt: Int? = null
     private var toMinuteInt: Int? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
 
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentAlertBinding.inflate(inflater, container, false)
         return binding.root
     }
