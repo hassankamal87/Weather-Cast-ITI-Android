@@ -16,6 +16,8 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.noaa.databinding.FragmentFavouriteBinding
+import com.example.noaa.favourite.viewmodel.FavouriteViewModel
+import com.example.noaa.favourite.viewmodel.FavouriteViewModelFactory
 import com.example.noaa.homeactivity.viewmodel.SharedViewModel
 import com.example.noaa.homeactivity.viewmodel.SharedViewModelFactory
 import com.example.noaa.model.Place
@@ -34,7 +36,7 @@ class FavouriteFragment : Fragment() {
 
     lateinit var binding: FragmentFavouriteBinding
     lateinit var favouriteRecyclerAdapter: FavouriteRecyclerAdapter
-    lateinit var sharedViewModel: SharedViewModel
+    lateinit var favouriteViewModel: FavouriteViewModel
     lateinit var place: Place
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,23 +58,20 @@ class FavouriteFragment : Fragment() {
 
 
         binding.fabAddFav.setOnClickListener {
-            val action = FavouriteFragmentDirections.actionFavouriteFragmentToMapFragment(Constants.FAVOURITE)
+            val action =
+                FavouriteFragmentDirections.actionFavouriteFragmentToMapFragment(Constants.FAVOURITE)
             view.findNavController().navigate(action)
         }
 
-        val factory = SharedViewModelFactory(
+        val factory = FavouriteViewModelFactory(
             Repo.getInstance(
                 RemoteSource,
                 LocationClient.getInstance(LocationServices.getFusedLocationProviderClient(view.context)),
                 ConcreteLocalSource.getInstance()
-            ), view.context.getSharedPreferences(
-                Constants.SETTING,
-                AppCompatActivity.MODE_PRIVATE
             )
         )
-        sharedViewModel = ViewModelProvider(requireActivity(), factory)[SharedViewModel::class.java]
-        sharedViewModel.getAllFavouritePlaces(requireContext())
-
+        favouriteViewModel = ViewModelProvider(this, factory)[FavouriteViewModel::class.java]
+        favouriteViewModel.getAllFavouritePlaces(requireContext())
 
 
         val itemTouchHelperCallBack = object : ItemTouchHelper.SimpleCallback(
@@ -90,7 +89,7 @@ class FavouriteFragment : Fragment() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
                 place = favouriteRecyclerAdapter.currentList[position]
-                sharedViewModel.deletePlaceFromFav(view.context, place)
+                favouriteViewModel.deletePlaceFromFav(view.context, place)
                 /*Snackbar.make(view, "deleting Location.... ", Snackbar.LENGTH_LONG).apply {
                     setAction("Confirm") {
                         sharedViewModel.insertPlaceToFav(view.context, place)
@@ -103,26 +102,25 @@ class FavouriteFragment : Fragment() {
         val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallBack)
         itemTouchHelper.attachToRecyclerView(binding.rvFavourite)
 
-        favouriteRecyclerAdapter = FavouriteRecyclerAdapter(){
+        favouriteRecyclerAdapter = FavouriteRecyclerAdapter() {
             // navigate to details fragment
-            if(sharedViewModel.checkConnection(requireContext())){
-                val action = FavouriteFragmentDirections.actionFavouriteFragmentToDetailsFragment(it)
+            if (favouriteViewModel.checkConnection(requireContext())) {
+                val action =
+                    FavouriteFragmentDirections.actionFavouriteFragmentToDetailsFragment(it)
                 view.findNavController().navigate(action)
-            }else{
-                Toast.makeText(requireContext(), "No Internet Connection", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "No Internet Connection", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
         binding.rvFavourite.adapter = favouriteRecyclerAdapter
 
         lifecycleScope.launch {
-            sharedViewModel.favouritePlacesStateFlow.collectLatest {
+            favouriteViewModel.favouritePlacesStateFlow.collectLatest {
                 favouriteRecyclerAdapter.submitList(it)
             }
         }
     }
-
-
-
 
 
 }

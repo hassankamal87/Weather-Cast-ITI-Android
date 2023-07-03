@@ -29,6 +29,7 @@ import com.example.noaa.services.db.ConcreteLocalSource
 import com.example.noaa.utilities.Constants
 import com.example.noaa.services.location.LocationClient
 import com.example.noaa.services.network.RemoteSource
+import com.example.noaa.services.sharepreferences.SettingSharedPref
 import com.example.noaa.utilities.Functions
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -43,31 +44,29 @@ const val My_LOCATION_PERMISSION_ID = 5005
 class HomeActivity : AppCompatActivity() {
     lateinit var binding: ActivityHomeBinding
     private lateinit var navController: NavController
-
     private lateinit var sharedViewModelFactory: SharedViewModelFactory
     private lateinit var sharedViewModel: SharedViewModel
-    private lateinit var sharedPreferences: SharedPreferences
-    lateinit var savedCoordinateLocale: Coordinate
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedPreferences = getSharedPreferences(Constants.SETTING, MODE_PRIVATE)
-        setDefaultLanguage()
+
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        navController = Navigation.findNavController(this, R.id.nav_host_fragment)
-        NavigationUI.setupWithNavController(binding.bottomNavigation, navController)
-
 
         sharedViewModelFactory = SharedViewModelFactory(
             Repo.getInstance(
                 RemoteSource,
                 LocationClient.getInstance(LocationServices.getFusedLocationProviderClient(this)),
                 ConcreteLocalSource.getInstance()
-            ), sharedPreferences
+            )
         )
+
         sharedViewModel =
             ViewModelProvider(this, sharedViewModelFactory)[SharedViewModel::class.java]
 
+        setDefaultLanguage()
+
+        navController = Navigation.findNavController(this, R.id.nav_host_fragment)
+        NavigationUI.setupWithNavController(binding.bottomNavigation, navController)
 
         lifecycleScope.launch {
             sharedViewModel.locationStatusStateFlow.collect {
@@ -87,24 +86,15 @@ class HomeActivity : AppCompatActivity() {
                 Log.w(TAG, "onViewCreated: from fragment ${it.latitude}")
                 Log.w(TAG, "onViewCreated: from fragment ${it.longitude}")
                 if (it.latitude != 0.0) {
-                    if (sharedPreferences.getString(
-                            Constants.LANGUAGE,
-                            "null"
+                    if (sharedViewModel.readStringFromSettingSP(
+                            Constants.LANGUAGE, this@HomeActivity
                         ) == Constants.ARABIC
                     ) {
                         sharedViewModel.getWeatherData(Coordinate(it.latitude, it.longitude), "ar")
-                    }else{
+                    } else {
                         sharedViewModel.getWeatherData(Coordinate(it.latitude, it.longitude), "en")
                     }
                 }
-            }
-        }
-
-
-        sharedViewModel.getLocationDataLocally()
-        lifecycleScope.launch {
-            sharedViewModel.savedLocationStateFlow.collect {
-                savedCoordinateLocale = it
             }
         }
 
@@ -118,14 +108,22 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun transitionToMap() {
+        val savedLatitude =
+            sharedViewModel.readFloatFromSettingSP(Constants.LATITUDE, this).toDouble()
+        val savedLongitude =
+            sharedViewModel.readFloatFromSettingSP(Constants.LONGITUDE, this).toDouble()
         Log.d(TAG, "onResume: transition to map")
-        if (savedCoordinateLocale.latitude == 0.0) {
+        if (savedLatitude == 0.0) {
             navController.navigate(R.id.mapFragment)
         } else {
-            if(sharedPreferences.getString(Constants.LANGUAGE, "null") == Constants.ARABIC){
-                sharedViewModel.getWeatherData(savedCoordinateLocale, "ar")
-            }else{
-                sharedViewModel.getWeatherData(savedCoordinateLocale, "en")
+            if (sharedViewModel.readStringFromSettingSP(
+                    Constants.LANGUAGE,
+                    this
+                ) == Constants.ARABIC
+            ) {
+                sharedViewModel.getWeatherData(Coordinate(savedLatitude, savedLongitude), "ar")
+            } else {
+                sharedViewModel.getWeatherData(Coordinate(savedLatitude, savedLongitude), "en")
             }
         }
     }
@@ -170,9 +168,9 @@ class HomeActivity : AppCompatActivity() {
                 bindingInitialLayoutDialog.radioGroupSettingLocationInitial.checkedRadioButtonId
 
             if (checkedBtn == bindingInitialLayoutDialog.radioSettingGpsInitial.id) {
-                sharedViewModel.setLocationChoice(Constants.GPS)
+                sharedViewModel.writeStringToSettingSP(Constants.LOCATION, Constants.GPS, this)
             } else {
-                sharedViewModel.setLocationChoice(Constants.MAP)
+                sharedViewModel.writeStringToSettingSP(Constants.LOCATION, Constants.MAP, this)
             }
             sharedViewModel.getLocation(this)
 
@@ -182,7 +180,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun setDefaultLanguage() {
-        if (sharedPreferences.getString(Constants.LANGUAGE, "null") == Constants.ARABIC) {
+        if (sharedViewModel.readStringFromSettingSP(Constants.LANGUAGE, this) == Constants.ARABIC) {
             Functions.changeLanguage(this, "ar")
         } else {
             Functions.changeLanguage(this, "en")

@@ -23,6 +23,7 @@ import com.example.noaa.model.Repo
 import com.example.noaa.services.db.ConcreteLocalSource
 import com.example.noaa.services.location.LocationClient
 import com.example.noaa.services.network.RemoteSource
+import com.example.noaa.services.sharepreferences.SettingSharedPref
 import com.example.noaa.utilities.Constants
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.SupportMapFragment
@@ -37,7 +38,7 @@ class MapFragment : Fragment() {
     private var marker: Marker? = null
     private var coordinate: Coordinate? = null
     lateinit var sharedViewModel: SharedViewModel
-    lateinit var sharedPreferences: SharedPreferences
+//    lateinit var sharedPreferences: SharedPreferences
 
     override fun onStart() {
         super.onStart()
@@ -63,15 +64,13 @@ class MapFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         googleMapHandler()
 
-        sharedPreferences =
-            view.context.getSharedPreferences(Constants.SETTING, AppCompatActivity.MODE_PRIVATE)
         val factory = SharedViewModelFactory(
             Repo.getInstance(
                 RemoteSource, LocationClient.getInstance(
                     LocationServices.getFusedLocationProviderClient(view.context),
                 ),
                 ConcreteLocalSource.getInstance()
-            ), sharedPreferences
+            )
         )
         sharedViewModel = ViewModelProvider(requireActivity(), factory)[SharedViewModel::class.java]
         val kind = MapFragmentArgs.fromBundle(requireArguments()).kind
@@ -79,16 +78,25 @@ class MapFragment : Fragment() {
             if (sharedViewModel.checkConnection(requireContext())) {
                 if (coordinate != null) {
                     if (kind == Constants.REGULAR) {
-                        if (sharedPreferences.getString(
+                        if (sharedViewModel.readStringFromSettingSP(
                                 Constants.LANGUAGE,
-                                "null"
+                                requireContext()
                             ) == Constants.ARABIC
                         ) {
                             sharedViewModel.getWeatherData(coordinate!!, "ar")
                         } else {
                             sharedViewModel.getWeatherData(coordinate!!, "en")
                         }
-                        sharedViewModel.setLocationData(coordinate!!)
+                        sharedViewModel.writeFloatToSettingSP(
+                            Constants.LATITUDE,
+                            coordinate!!.latitude.toFloat(),
+                            requireContext()
+                        )
+                        sharedViewModel.writeFloatToSettingSP(
+                            Constants.LONGITUDE,
+                            coordinate!!.longitude.toFloat(),
+                            requireContext()
+                        )
                         navigateBack()
                     } else {
                         var cityName = "UnKnown Location"
@@ -120,7 +128,7 @@ class MapFragment : Fragment() {
                     Toast.makeText(requireContext(), "please pick location", Toast.LENGTH_SHORT)
                         .show()
                 }
-            }else{
+            } else {
                 Toast.makeText(requireContext(), "No Internet Connection", Toast.LENGTH_SHORT)
                     .show()
             }

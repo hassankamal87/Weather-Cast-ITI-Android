@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.noaa.R
 import com.example.noaa.databinding.ItemHoursBinding
 import com.example.noaa.model.Hourly
+import com.example.noaa.services.sharepreferences.SettingSharedPref
 import com.example.noaa.utilities.Constants
 import com.example.noaa.utilities.Functions
 import java.text.SimpleDateFormat
@@ -18,7 +19,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class HourlyRecyclerAdapter(private val sharedPreferences: SharedPreferences) :
+class HourlyRecyclerAdapter() :
     ListAdapter<Hourly, HourlyRecyclerAdapter.HourlyViewHolder>(RecyclerDiffUtil()) {
 
     lateinit var binding: ItemHoursBinding
@@ -35,7 +36,7 @@ class HourlyRecyclerAdapter(private val sharedPreferences: SharedPreferences) :
         val currentItem = getItem(position)
         holder.apply {
             binding.apply {
-                if (sharedPreferences.getString(Constants.LANGUAGE, "null") == Constants.ARABIC) {
+                if (SettingSharedPref.getInstance(tvDateHours.context).readStringFromSettingSP(Constants.LANGUAGE) == Constants.ARABIC) {
                     tvDateHours.text =
                         Functions.formatDateStamp(currentItem.dt, tvDateHours.context, "ar")
                     tvTimeHours.text = Functions.formatTimestamp(currentItem.dt, "ar")
@@ -46,7 +47,7 @@ class HourlyRecyclerAdapter(private val sharedPreferences: SharedPreferences) :
                 }
 
                 tvDegreeHours.text = String.format("%.0f°C", currentItem.temp)
-                when (sharedPreferences.getString(Constants.TEMPERATURE, "null")) {
+                when (SettingSharedPref.getInstance(tvDegreeHours.context).readStringFromSettingSP(Constants.TEMPERATURE)) {
                     Constants.KELVIN -> tvDegreeHours.text = String.format(
                         "%.0f°${tvDegreeHours.context.getString(R.string.k)}",
                         currentItem.temp + 273.15

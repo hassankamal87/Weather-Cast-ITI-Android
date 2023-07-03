@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.noaa.R
 import com.example.noaa.databinding.ItemDaysBinding
 import com.example.noaa.model.Daily
+import com.example.noaa.services.sharepreferences.SettingSharedPref
 import com.example.noaa.utilities.Constants
 import com.example.noaa.utilities.Functions
 import java.text.SimpleDateFormat
@@ -18,7 +19,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class DailyRecyclerAdapter(private val sharedPreferences: SharedPreferences) :
+class DailyRecyclerAdapter() :
     ListAdapter<Daily, DailyRecyclerAdapter.DailyViewHolder>(RecyclerDiffUtilDaily()) {
 
     lateinit var binding: ItemDaysBinding
@@ -38,7 +39,7 @@ class DailyRecyclerAdapter(private val sharedPreferences: SharedPreferences) :
         holder.apply {
             binding.apply {
 
-                if (sharedPreferences.getString(Constants.LANGUAGE, null) == Constants.ARABIC) {
+                if (SettingSharedPref.getInstance(tvDayDays.context).readStringFromSettingSP(Constants.LANGUAGE) == Constants.ARABIC) {
                     tvDayDays.text =
                         Functions.formatDayOfWeek(currentItem.dt, tvDayDays.context, "ar")
                 } else {
@@ -46,7 +47,7 @@ class DailyRecyclerAdapter(private val sharedPreferences: SharedPreferences) :
                         Functions.formatDayOfWeek(currentItem.dt, tvDayDays.context, "en")
                 }
                 tvStatusDays.text = currentItem.weather[0].description
-                when (sharedPreferences.getString(Constants.TEMPERATURE, "null")) {
+                when (SettingSharedPref.getInstance(tvDayDays.context).readStringFromSettingSP(Constants.TEMPERATURE)) {
                     Constants.KELVIN -> tvDegreeDays.text = String.format(
                         "%.0f/%.0f°${tvDegreeDays.context.getString(R.string.k)}",
                         currentItem.temp.max + 273.15, currentItem.temp.min + 273.15

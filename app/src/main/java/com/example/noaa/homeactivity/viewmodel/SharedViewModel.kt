@@ -11,6 +11,7 @@ import com.example.noaa.model.Place
 import com.example.noaa.model.RepoInterface
 import com.example.noaa.model.WeatherResponse
 import com.example.noaa.services.network.ApiState
+import com.example.noaa.services.sharepreferences.SettingSharedPref
 import com.example.noaa.utilities.Constants
 import com.example.noaa.utilities.LocationUtility
 import kotlinx.coroutines.Dispatchers
@@ -21,13 +22,11 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class SharedViewModel(
-    private val repo: RepoInterface,
-    private val sharedPreferences: SharedPreferences
+    private val repo: RepoInterface
 ) : ViewModel() {
 
     private val _locationStatusMutableStateFlow: MutableStateFlow<String> = MutableStateFlow("")
     val locationStatusStateFlow: StateFlow<String> get() = _locationStatusMutableStateFlow
-
 
     private val _coordinateMutableStateFlow: MutableStateFlow<Coordinate> =
         MutableStateFlow(Coordinate(0.0, 0.0))
@@ -37,35 +36,10 @@ class SharedViewModel(
         MutableStateFlow(ApiState.Loading)
     val weatherResponseStateFlow: StateFlow<ApiState> get() = _weatherResponseMutableStateFlow
 
-    private val _savedLocationMutableStateFlow: MutableStateFlow<Coordinate> =
-        MutableStateFlow(Coordinate(0.0, 0.0))
-    val savedLocationStateFlow: StateFlow<Coordinate> get() = _savedLocationMutableStateFlow
-
-    private val _favouritePlacesMutableStateFlow: MutableStateFlow<List<Place>> =
-        MutableStateFlow(emptyList())
-    val favouritePlacesStateFlow: StateFlow<List<Place>> get() = _favouritePlacesMutableStateFlow
-
-
-    fun setLocationChoice(choice: String) {
-        sharedPreferences.edit().putString(Constants.LOCATION, choice).apply()
-    }
-
-    fun setLocationData(coordinate: Coordinate) {
-        sharedPreferences.edit().putFloat(Constants.LATITUDE, coordinate.latitude.toFloat()).apply()
-        sharedPreferences.edit().putFloat(Constants.LONGITUDE, coordinate.longitude.toFloat())
-            .apply()
-    }
-
-    fun getLocationDataLocally() {
-        val lat = sharedPreferences.getFloat(Constants.LATITUDE, 0.0f)
-        val long = sharedPreferences.getFloat(Constants.LONGITUDE, 0.0f)
-        _savedLocationMutableStateFlow.value = Coordinate(lat.toDouble(), long.toDouble())
-    }
-
     fun getLocation(context: Context) {
         Log.w(TAG, "getLocation: timmme")
         if (LocationUtility.checkConnection(context)) {
-            when (sharedPreferences.getString(Constants.LOCATION, "null")) {
+            when (readStringFromSettingSP(Constants.LOCATION, context)) {
                 Constants.GPS -> {
                     if (LocationUtility.checkPermission(context)) {
                         if (LocationUtility.isLocationIsEnabled(context)) {
@@ -119,20 +93,6 @@ class SharedViewModel(
         }
     }
 
-    fun deletePlaceFromFav(context: Context, place: Place) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repo.deletePlaceFromFav(context, place)
-        }
-    }
-
-    fun getAllFavouritePlaces(context: Context) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repo.getAllFavouritePlaces(context).collectLatest {
-                _favouritePlacesMutableStateFlow.value = it
-            }
-        }
-    }
-
     fun insertCashedData(context: Context, weatherResponse: WeatherResponse) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.insertCashedData(context, weatherResponse)
@@ -153,6 +113,22 @@ class SharedViewModel(
 
     fun checkConnection(context: Context): Boolean {
         return LocationUtility.checkConnection(context)
+    }
+
+    fun writeStringToSettingSP(key: String, value: String, context: Context){
+        SettingSharedPref.getInstance(context).writeStringToSettingSP(key, value)
+    }
+
+    fun readStringFromSettingSP(key: String, context: Context): String{
+        return SettingSharedPref.getInstance(context).readStringFromSettingSP(key)
+    }
+
+    fun writeFloatToSettingSP(key: String, value: Float, context: Context){
+        SettingSharedPref.getInstance(context).writeFloatToSettingSP(key, value)
+    }
+
+    fun readFloatFromSettingSP(key: String, context: Context): Float{
+        return SettingSharedPref.getInstance(context).readFloatFromSettingSP(key)
     }
 
 }

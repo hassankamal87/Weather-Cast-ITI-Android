@@ -23,6 +23,7 @@ import com.example.noaa.model.Repo
 import com.example.noaa.services.db.ConcreteLocalSource
 import com.example.noaa.services.location.LocationClient
 import com.example.noaa.services.network.RemoteSource
+import com.example.noaa.services.sharepreferences.SettingSharedPref
 import com.example.noaa.utilities.Constants
 import com.example.noaa.utilities.Functions
 import com.google.android.gms.location.LocationServices
@@ -33,7 +34,6 @@ class SettingFragment : Fragment() {
 
     private lateinit var binding: FragmentSettingBinding
     private lateinit var sharedViewModel: SharedViewModel
-    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,51 +54,69 @@ class SettingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         cardsAnimation()
 
-        sharedPreferences = view.context.getSharedPreferences(
-            Constants.SETTING,
-            AppCompatActivity.MODE_PRIVATE
-        )
-        setDefaultRadioButtons()
         val factory = SharedViewModelFactory(
             Repo.getInstance(
                 RemoteSource,
                 LocationClient.getInstance(LocationServices.getFusedLocationProviderClient(view.context)),
                 ConcreteLocalSource.getInstance()
-            ),
-            sharedPreferences
+            )
         )
         sharedViewModel = ViewModelProvider(requireActivity(), factory)[SharedViewModel::class.java]
 
-
+        setDefaultRadioButtons()
 
         binding.radioGroupSettingLocation.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == R.id.radio_setting_map) {
-                sharedViewModel.setLocationChoice(Constants.MAP)
+                sharedViewModel.writeStringToSettingSP(
+                    Constants.LOCATION,
+                    Constants.MAP,
+                    requireContext()
+                )
                 val action = SettingFragmentDirections.actionSettingFragmentToMapFragment()
                 view.findNavController().navigate(action)
             } else {
-                sharedViewModel.setLocationChoice(Constants.GPS)
+                sharedViewModel.writeStringToSettingSP(
+                    Constants.LOCATION,
+                    Constants.GPS,
+                    requireContext()
+                )
                 sharedViewModel.getLocation(requireContext())
             }
         }
 
         binding.radioGroupSettingWind.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == R.id.radio_setting_meter) {
-                sharedPreferences.edit().putString(Constants.WIND_SPEED, Constants.METER_SEC).apply()
+                sharedViewModel.writeStringToSettingSP(
+                    Constants.WIND_SPEED,
+                    Constants.METER_SEC,
+                    requireContext()
+                )
             } else {
-                sharedPreferences.edit().putString(Constants.WIND_SPEED, Constants.MILE_HOUR).apply()
+                sharedViewModel.writeStringToSettingSP(
+                    Constants.WIND_SPEED,
+                    Constants.MILE_HOUR,
+                    requireContext()
+                )
             }
         }
 
 
         binding.radioGroupSettingLanguage.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == R.id.radio_setting_arabic) {
-                sharedPreferences.edit().putString(Constants.LANGUAGE, Constants.ARABIC).apply()
-                Functions.changeLanguage(requireActivity(),"ar")
+                sharedViewModel.writeStringToSettingSP(
+                    Constants.LANGUAGE,
+                    Constants.ARABIC,
+                    requireContext()
+                )
+                Functions.changeLanguage(requireActivity(), "ar")
                 restartApplication()
             } else {
-                sharedPreferences.edit().putString(Constants.LANGUAGE, Constants.ENGLISH).apply()
-                Functions.changeLanguage(requireActivity(),"en")
+                sharedViewModel.writeStringToSettingSP(
+                    Constants.LANGUAGE,
+                    Constants.ENGLISH,
+                    requireContext()
+                )
+                Functions.changeLanguage(requireActivity(), "en")
                 restartApplication()
             }
         }
@@ -106,22 +124,43 @@ class SettingFragment : Fragment() {
 
         binding.radioGroupSettingNotification.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == R.id.radio_setting_enable_notification) {
-                sharedPreferences.edit().putString(Constants.NOTIFICATION, Constants.ENABLE).apply()
+                sharedViewModel.writeStringToSettingSP(
+                    Constants.NOTIFICATION,
+                    Constants.ENABLE,
+                    requireContext()
+                )
             } else {
-                sharedPreferences.edit().putString(Constants.NOTIFICATION, Constants.DISABLE).apply()
+                sharedViewModel.writeStringToSettingSP(
+                    Constants.NOTIFICATION,
+                    Constants.DISABLE,
+                    requireContext()
+                )
             }
         }
 
 
         binding.radioGroupSettingTemp.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == R.id.radio_setting_celsius) {
-                sharedPreferences.edit().putString(Constants.TEMPERATURE, Constants.CELSIUS).apply()
-            }else if(checkedId == R.id.radio_setting_kelvin){
-                sharedPreferences.edit().putString(Constants.TEMPERATURE, Constants.KELVIN).apply()
+                sharedViewModel.writeStringToSettingSP(
+                    Constants.TEMPERATURE,
+                    Constants.CELSIUS,
+                    requireContext()
+                )
+            } else if (checkedId == R.id.radio_setting_kelvin) {
+                sharedViewModel.writeStringToSettingSP(
+                    Constants.TEMPERATURE,
+                    Constants.KELVIN,
+                    requireContext()
+                )
             } else {
-                sharedPreferences.edit().putString(Constants.TEMPERATURE, Constants.FAHRENHEIT).apply()
+                sharedViewModel.writeStringToSettingSP(
+                    Constants.TEMPERATURE,
+                    Constants.FAHRENHEIT,
+                    requireContext()
+                )
             }
         }
+
     }
 
     private fun cardsAnimation() {
@@ -138,41 +177,65 @@ class SettingFragment : Fragment() {
         binding.cvTemp.startAnimation(animation3)
     }
 
-    private fun setDefaultRadioButtons(){
-        if (sharedPreferences.getString(Constants.LOCATION, "null") == Constants.GPS) {
+    private fun setDefaultRadioButtons() {
+        if (sharedViewModel.readStringFromSettingSP(
+                Constants.LOCATION,
+                requireContext()
+            ) == Constants.GPS
+        ) {
             binding.radioGroupSettingLocation.check(R.id.radio_setting_gps)
         } else {
             binding.radioGroupSettingLocation.check(R.id.radio_setting_map)
         }
 
-        if (sharedPreferences.getString(Constants.WIND_SPEED, "null") == Constants.MILE_HOUR) {
+        if (sharedViewModel.readStringFromSettingSP(
+                Constants.WIND_SPEED,
+                requireContext()
+            ) == Constants.MILE_HOUR
+        ) {
             binding.radioGroupSettingWind.check(R.id.radio_setting_mile)
         } else {
             binding.radioGroupSettingWind.check(R.id.radio_setting_meter)
         }
 
-        if (sharedPreferences.getString(Constants.LANGUAGE, Constants.ENGLISH) == Constants.ARABIC) {
+        if (sharedViewModel.readStringFromSettingSP(
+                Constants.LANGUAGE,
+                requireContext()
+            ) == Constants.ARABIC
+        ) {
             binding.radioGroupSettingLanguage.check(R.id.radio_setting_arabic)
         } else {
             binding.radioGroupSettingLanguage.check(R.id.radio_setting_english)
         }
 
-        if (sharedPreferences.getString(Constants.NOTIFICATION, "null") == Constants.DISABLE) {
+        if (sharedViewModel.readStringFromSettingSP(
+                Constants.NOTIFICATION,
+                requireContext()
+            ) == Constants.DISABLE
+        ) {
             binding.radioGroupSettingNotification.check(R.id.radio_setting_disable_notification)
         } else {
             binding.radioGroupSettingNotification.check(R.id.radio_setting_enable_notification)
         }
 
-        if (sharedPreferences.getString(Constants.TEMPERATURE, "null") == Constants.KELVIN) {
+        if (sharedViewModel.readStringFromSettingSP(
+                Constants.TEMPERATURE,
+                requireContext()
+            ) == Constants.KELVIN
+        ) {
             binding.radioGroupSettingTemp.check(R.id.radio_setting_kelvin)
-        } else if(sharedPreferences.getString(Constants.TEMPERATURE, "null") == Constants.FAHRENHEIT){
+        } else if (sharedViewModel.readStringFromSettingSP(
+                Constants.TEMPERATURE,
+                requireContext()
+            ) == Constants.FAHRENHEIT
+        ) {
             binding.radioGroupSettingTemp.check(R.id.radio_fahrenheit)
-        }else {
+        } else {
             binding.radioGroupSettingTemp.check(R.id.radio_setting_celsius)
         }
     }
 
-    private fun restartApplication(){
+    private fun restartApplication() {
         val intent = requireActivity().packageManager.getLaunchIntentForPackage(
             requireActivity().packageName
         )
