@@ -65,4 +65,6 @@
     <string name="tomo">Tomorrow</string>
     <string name="percentage">%</string>
     <string name="notification_permission">Notification Permission is required</string>
+    <string name="stop">STOP</string>
+    <string name="overlay_permission_is_required_for_alert">overLay Permission Is Required for alert</string>
 </resources>

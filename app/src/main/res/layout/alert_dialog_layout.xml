@@ -79,7 +79,7 @@
             android:id="@+id/radioGroup_Alert_dialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checkedButton="@+id/radio_alert"
+            android:checkedButton="@+id/radio_notification"
             android:orientation="horizontal"
             android:paddingHorizontal="40dp"
             app:layout_constraintEnd_toEndOf="parent"

@@ -65,5 +65,7 @@
     <string name="today">اليوم</string>
     <string name="tomo">غدا</string>
     <string name="percentage">٪</string>
-    <string name="notification_permission">إذن الإخطار مطلوب</string>
+    <string name="notification_permission">إذن الإشعارات مطلوب</string>
+    <string name="stop">ايقاف</string>
+    <string name="overlay_permission_is_required_for_alert">اذن التنبيه مطلوب</string>
 </resources>

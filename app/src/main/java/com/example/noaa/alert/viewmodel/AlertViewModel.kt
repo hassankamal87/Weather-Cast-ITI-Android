@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.noaa.model.AlarmItem
 import com.example.noaa.model.RepoInterface
+import com.example.noaa.model.WeatherResponse
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -36,6 +38,10 @@ class AlertViewModel(private val repo: RepoInterface) : ViewModel() {
                 _alarmsMutableStateFlow.value = it
             }
         }
+    }
+
+    fun getCashedData(): Flow<WeatherResponse>{
+        return repo.getCashedData()
     }
 
 

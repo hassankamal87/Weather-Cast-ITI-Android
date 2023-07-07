@@ -4,9 +4,13 @@ import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.media.MediaPlayer
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+import android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -101,22 +105,18 @@ class AlertFragment : Fragment() {
 
         }
 
-        binding.btnEnable.setOnClickListener {
-            val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
-            intent.data = Uri.parse("package:com.example.noaa")
-            startActivity(intent)
+        binding.btnEnableNotification.setOnClickListener {
+            requestNotificationPermission()
+        }
+
+        binding.btnEnableAlert.setOnClickListener {
+            requestOverlayPermission()
         }
     }
 
     override fun onResume() {
         super.onResume()
-        if (PermissionUtility.notificationPermission(requireContext())) {
-            binding.tvAlertUser.visibility = View.GONE
-            binding.btnEnable.visibility = View.GONE
-        } else {
-            binding.tvAlertUser.visibility = View.VISIBLE
-            binding.btnEnable.visibility = View.VISIBLE
-        }
+        tellUserAboutPermissions()
     }
 
     private fun showTimeDialog() {
@@ -131,21 +131,37 @@ class AlertFragment : Fragment() {
             showDatePicker()
         }
 
+        bindingAlertLayout.radioGroupAlertDialog.setOnCheckedChangeListener { _, checkedId ->
+            if (checkedId == bindingAlertLayout.radioAlert.id) {
+                requestOverlayPermission()
+            }
+        }
+
 
         bindingAlertLayout.btnSaveDialog.setOnClickListener {
 
+            var lat = 0.0
+            var lon = 0.0
+          /*  lifecycleScope.launch {
+                alertViewModel.getCashedData().collectLatest {
+                    lat = it.lat
+                    lon = it.lon
+                }
+            }*/
+
             val kindId = bindingAlertLayout.radioGroupAlertDialog.checkedRadioButtonId
-            var kind: String = Constants.ALERT
-            if (kindId == bindingAlertLayout.radioNotification.id) {
-                kind = Constants.NOTIFICATION
+            var kind: String = Constants.NOTIFICATION
+            if (kindId == bindingAlertLayout.radioAlert.id) {
+                kind = Constants.ALERT
             }
+
             val time = Functions.formatFromStringToLong(
                 bindingAlertLayout.tvFromDateDialog.text.toString(),
                 bindingAlertLayout.tvFromTimeDialog.text.toString()
             )
-            val currentTimeInMillis = System.currentTimeMillis()
 
-            val alarmItem = AlarmItem(time = time, kind = kind)
+            val currentTimeInMillis = System.currentTimeMillis()
+            val alarmItem = AlarmItem(time = time, kind = kind, lat, lon)
             if (time > currentTimeInMillis) {
                 alertViewModel.insertAlarm(alarmItem)
                 startAlarmManager(alarmItem)
@@ -166,7 +182,9 @@ class AlertFragment : Fragment() {
 
     private fun startAlarmManager(alarmItem: AlarmItem) {
         AlarmScheduler.getInstance(
-            requireContext()).createAlarm(alarmItem, requireContext()
+            requireContext()
+        ).createAlarm(
+            alarmItem, requireContext()
         )
     }
 
@@ -186,6 +204,21 @@ class AlertFragment : Fragment() {
             .show()
     }
 
+
+    private fun requestOverlayPermission() {
+        if (!Settings.canDrawOverlays(requireContext())) {
+            val intent = Intent(ACTION_MANAGE_OVERLAY_PERMISSION)
+            intent.data = Uri.parse("package:com.example.noaa")
+            startActivity(intent)
+        }
+    }
+
+    private fun requestNotificationPermission() {
+        val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
+        intent.data = Uri.parse("package:com.example.noaa")
+        startActivity(intent)
+    }
+
     private fun deleteBySwipe() {
         val itemTouchHelperCallBack = object : ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.UP or ItemTouchHelper.DOWN,
@@ -203,6 +236,8 @@ class AlertFragment : Fragment() {
                 val position = viewHolder.adapterPosition
                 val alarmItem = alertRecyclerAdapter.currentList[position]
                 alertViewModel.deleteAlarm(alarmItem)
+                val mediaPlayer = MediaPlayer.create(context, R.raw.deleted)
+                mediaPlayer.start()
                 AlarmScheduler.getInstance(requireContext())
                     .cancelAlarm(alarmItem, requireContext())
 
@@ -264,6 +299,24 @@ class AlertFragment : Fragment() {
             bindingAlertLayout.tvFromTimeDialog.text =
                 Functions.formatHourMinuteToString(timePicker.hour, timePicker.minute)
 
+        }
+    }
+
+    private fun tellUserAboutPermissions() {
+        if (PermissionUtility.notificationPermission(requireContext())) {
+            binding.tvAlertUserNotification.visibility = View.GONE
+            binding.btnEnableNotification.visibility = View.GONE
+        } else {
+            binding.tvAlertUserNotification.visibility = View.VISIBLE
+            binding.btnEnableNotification.visibility = View.VISIBLE
+        }
+
+        if (Settings.canDrawOverlays(requireContext())) {
+            binding.tvAlertUserAlert.visibility = View.GONE
+            binding.btnEnableAlert.visibility = View.GONE
+        } else {
+            binding.tvAlertUserAlert.visibility = View.VISIBLE
+            binding.btnEnableAlert.visibility = View.VISIBLE
         }
     }
 }

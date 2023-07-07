@@ -1,6 +1,7 @@
 package com.example.noaa.favourite.view
 
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.example.noaa.R
 import com.example.noaa.databinding.FragmentFavouriteBinding
 import com.example.noaa.favourite.viewmodel.FavouriteViewModel
 import com.example.noaa.favourite.viewmodel.FavouriteViewModelFactory
@@ -81,6 +83,8 @@ class FavouriteFragment : Fragment() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
                 place = favouriteRecyclerAdapter.currentList[position]
+                val mediaPlayer = MediaPlayer.create(context, R.raw.deleted)
+                mediaPlayer.start()
                 favouriteViewModel.deletePlaceFromFav(place)
                 /*Snackbar.make(view, "deleting Location.... ", Snackbar.LENGTH_LONG).apply {
                     setAction("Confirm") {

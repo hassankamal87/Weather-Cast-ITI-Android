@@ -8,5 +8,7 @@ import java.io.Serializable
 data class AlarmItem(
     @PrimaryKey(autoGenerate = true)
     val time: Long,
-    val kind: String
+    val kind: String,
+    val latitude: Double,
+    val longitude: Double
 ): Serializable

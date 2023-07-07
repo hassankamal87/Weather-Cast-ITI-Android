@@ -33,7 +33,7 @@ object NotificationChannelHelper {
     fun createNotification(context: Context, description: String): NotificationCompat.Builder {
         val pendingIntent = createPendingIntent(context)
         val builder = NotificationCompat.Builder(context, Constants.CHANNEL_ID)
-        builder.setSmallIcon(R.drawable.cloudy)
+        builder.setSmallIcon(R.drawable.icon_notify)
         builder.setContentTitle("NOAA WEATHER")
         builder.setContentText(description)
         builder.setStyle(
