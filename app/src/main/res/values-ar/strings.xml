@@ -30,7 +30,7 @@
     <string name="_0_0">0.0</string>
     <string name="cloud">الغيوم</string>
     <string name="_0percentage">0%</string>
-    <string name="_3_58_am">3:58 AM</string>
+    <string name="_3_58_am">03:58 AM</string>
     <string name="to">الي</string>
     <string name="add_alert">اضافة تنبيه</string>
     <string name="from">من</string>
@@ -65,4 +65,5 @@
     <string name="today">اليوم</string>
     <string name="tomo">غدا</string>
     <string name="percentage">٪</string>
+    <string name="notification_permission">إذن الإخطار مطلوب</string>
 </resources>

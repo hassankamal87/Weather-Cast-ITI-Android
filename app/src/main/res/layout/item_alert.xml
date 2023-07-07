@@ -12,7 +12,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingVertical="15dp">
+        android:padding="15dp"
+        >
 
         <TextView
             android:id="@+id/tv_from_time"
@@ -20,11 +21,10 @@
             android:layout_height="wrap_content"
             android:text="@string/_3_58_am"
             android:textColor="@color/text_color"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toStartOf="@+id/tv_to"
-            app:layout_constraintHorizontal_bias="0.5"
+            android:textSize="20sp"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            />
 
         <TextView
             android:id="@+id/tv_from_date"
@@ -33,46 +33,21 @@
             android:text="@string/_15_may_2020"
             android:textColor="@color/text_color"
             android:textSize="11sp"
-            app:layout_constraintEnd_toEndOf="@+id/tv_from_time"
-            app:layout_constraintStart_toStartOf="@+id/tv_from_time"
-            app:layout_constraintTop_toBottomOf="@id/tv_from_time" />
+            android:layout_marginStart="10dp"
+            app:layout_constraintStart_toEndOf="@id/tv_from_time"
+            app:layout_constraintBottom_toBottomOf="@id/tv_from_time"
+            />
 
         <TextView
-            android:id="@+id/tv_to"
+            android:id="@+id/tv_kind"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/to"
-            android:textColor="@color/white"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@id/tv_from_date"
-            app:layout_constraintEnd_toStartOf="@+id/tv_to_time"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/tv_from_time"
-            app:layout_constraintTop_toTopOf="@id/tv_from_time" />
-
-        <TextView
-            android:id="@+id/tv_to_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/_3_58_am"
-            android:textColor="@color/text_color"
-            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/tv_to"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:text="@string/notification"
+            android:layout_marginEnd="10dp"
+            />
 
-        <TextView
-            android:id="@+id/tv_to_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/_15_may_2020"
-            android:textColor="@color/text_color"
-            android:textSize="11sp"
-            app:layout_constraintEnd_toEndOf="@+id/tv_to_time"
-            app:layout_constraintStart_toStartOf="@+id/tv_to_time"
-            app:layout_constraintTop_toBottomOf="@id/tv_to_time" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

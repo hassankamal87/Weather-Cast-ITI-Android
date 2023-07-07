@@ -37,4 +37,14 @@ object Constants {
 
     const val REGULAR = "regular"
     const val FAVOURITE = "fav"
+
+    const val CHANNEL_NAME= "weather"
+    const val CHANNEL_DESCRIPTION = "weather notification"
+    const val CHANNEL_ID = "123"
+    const val NOTIFICATION_ID = 1
+    const val ALARM_ITEM = "alarmItem"
+    const val ALERT_DESCRIPTION = "alertDescription"
+
+
+    const val ALERT = "alert"
 }

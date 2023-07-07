@@ -59,11 +59,11 @@ object Functions {
         }
     }
 
-    fun formatDateStamp(timestamp: Int, context: Context, lang: String): String {
+    fun formatDateStamp(timestamp: Long, context: Context, lang: String): String {
         val sdf = SimpleDateFormat("d MMM", Locale(lang))
         val calendar = Calendar.getInstance()
         val currentDay = calendar.get(Calendar.DAY_OF_YEAR)
-        calendar.timeInMillis = timestamp.toLong() * 1000
+        calendar.timeInMillis = timestamp * 1000
         val targetDay = calendar.get(Calendar.DAY_OF_YEAR)
         return when (targetDay) {
             currentDay -> context.getString(R.string.today)
@@ -72,10 +72,33 @@ object Functions {
         }
     }
 
-    fun formatTimestamp(timestamp: Int, lang: String): String {
+    fun formatTimestamp(timestamp: Long, lang: String): String {
         val sdf = SimpleDateFormat("h a", Locale(lang))
-        val date = Date(timestamp.toLong() * 1000)
+        val date = Date(timestamp * 1000)
         return sdf.format(date)
+    }
+
+    fun formatHourMinuteToString(hour: Int, minute: Int): String {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, hour)
+        calendar.set(Calendar.MINUTE, minute)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        val dateFormat = SimpleDateFormat("hh:mm a", Locale.US)
+        return dateFormat.format(calendar.time)
+    }
+
+    fun formatFromStringToLong(dateText: String, timeText: String): Long {
+        val dateFormat = SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.US)
+        val dateAndTime = "$dateText $timeText}"
+        val date = dateFormat.parse(dateAndTime)
+        return date?.time ?: -1
+    }
+
+    fun formatLongToAnyString(dateTimeInMillis: Long, pattern: String): String {
+        val resultFormat = SimpleDateFormat(pattern, Locale.getDefault())
+        val date = Date(dateTimeInMillis)
+        return resultFormat.format(date)
     }
 
     fun changeLanguage(activity: Activity, languageCode: String) {

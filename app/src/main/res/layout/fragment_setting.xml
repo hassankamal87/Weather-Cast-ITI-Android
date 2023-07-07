@@ -51,9 +51,6 @@
             android:layout_marginTop="15dp"
             android:checkedButton="@+id/radio_setting_gps"
             android:padding="20dp"
-            app:layout_constraintEnd_toEndOf="@id/cv_to"
-            app:layout_constraintStart_toStartOf="@id/cv_from"
-            app:layout_constraintTop_toBottomOf="@id/cv_to"
             android:theme="@style/Widget.App.RadioButton">
 
 
@@ -109,9 +106,6 @@
             android:layout_marginTop="15dp"
             android:checkedButton="@+id/radio_setting_meter"
             android:padding="20dp"
-            app:layout_constraintEnd_toEndOf="@id/cv_to"
-            app:layout_constraintStart_toStartOf="@id/cv_from"
-            app:layout_constraintTop_toBottomOf="@id/cv_to"
             android:theme="@style/Widget.App.RadioButton">
 
 
@@ -167,9 +161,6 @@
             android:layout_marginTop="15dp"
             android:checkedButton="@+id/radio_setting_english"
             android:padding="20dp"
-            app:layout_constraintEnd_toEndOf="@id/cv_to"
-            app:layout_constraintStart_toStartOf="@id/cv_from"
-            app:layout_constraintTop_toBottomOf="@id/cv_to"
             android:theme="@style/Widget.App.RadioButton" >
 
 
@@ -225,9 +216,6 @@
             android:layout_marginTop="15dp"
             android:checkedButton="@+id/radio_setting_enable_notification"
             android:padding="20dp"
-            app:layout_constraintEnd_toEndOf="@id/cv_to"
-            app:layout_constraintStart_toStartOf="@id/cv_from"
-            app:layout_constraintTop_toBottomOf="@id/cv_to"
             android:theme="@style/Widget.App.RadioButton" >
 
 
@@ -282,9 +270,6 @@
             android:layout_marginTop="15dp"
             android:checkedButton="@+id/radio_setting_celsius"
             android:padding="20dp"
-            app:layout_constraintEnd_toEndOf="@id/cv_to"
-            app:layout_constraintStart_toStartOf="@id/cv_from"
-            app:layout_constraintTop_toBottomOf="@id/cv_to"
             android:theme="@style/Widget.App.RadioButton" >
 
 

@@ -1,6 +1,6 @@
 package com.example.noaa.services.db
 
-import android.content.Context
+import com.example.noaa.model.AlarmItem
 import com.example.noaa.model.Place
 import com.example.noaa.model.WeatherResponse
 import kotlinx.coroutines.flow.Flow
@@ -17,4 +17,10 @@ interface LocalSource {
     suspend fun deleteCashedData()
 
     fun getCashedData(): Flow<WeatherResponse>
+
+    suspend fun insertAlarm(alarmItem: AlarmItem)
+
+    suspend fun deleteAlarm(alarmItem: AlarmItem)
+
+    fun getAllAlarms(): Flow<List<AlarmItem>>
 }

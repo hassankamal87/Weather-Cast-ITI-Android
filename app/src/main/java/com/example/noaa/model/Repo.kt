@@ -1,12 +1,9 @@
 package com.example.noaa.model
 
-import android.content.Context
-import com.example.noaa.services.db.ConcreteLocalSource
 import com.example.noaa.services.db.LocalSource
 import com.example.noaa.services.location.LocationClientInterface
 import com.example.noaa.services.network.ConcreteRemoteSource
 import com.example.noaa.services.sharepreferences.SettingSPInterface
-import com.example.noaa.services.sharepreferences.SettingSharedPref
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 
@@ -66,6 +63,18 @@ class Repo private constructor(
 
     override fun getCashedData(): Flow<WeatherResponse> {
         return localSource.getCashedData()
+    }
+
+    override suspend fun insertAlarm(alarmItem: AlarmItem) {
+        localSource.insertAlarm(alarmItem)
+    }
+
+    override suspend fun deleteAlarm(alarmItem: AlarmItem) {
+        localSource.deleteAlarm(alarmItem)
+    }
+
+    override fun getAllAlarms(): Flow<List<AlarmItem>> {
+        return localSource.getAllAlarms()
     }
 
     override fun writeStringToSettingSP(key: String, value: String) {

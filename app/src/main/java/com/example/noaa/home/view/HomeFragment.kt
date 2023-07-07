@@ -79,6 +79,9 @@ class HomeFragment : Fragment() {
                         }
                         if (sharedViewModel.checkConnection(requireContext())) {
                             sharedViewModel.insertCashedData(it.weatherResponse)
+                            it.weatherResponse.alerts?.let {alerts->
+                                sharedViewModel.writeStringToSettingSP(Constants.ALERT_DESCRIPTION, alerts[0].description)
+                            }
                         }
                     }
 
@@ -138,13 +141,24 @@ class HomeFragment : Fragment() {
 
         binding.apply {
 
-            tvLocationName.text = Functions.setLocationNameByGeoCoder(weatherResponse, requireContext())
+            tvLocationName.text =
+                Functions.setLocationNameByGeoCoder(weatherResponse, requireContext())
             tvWeatherStatus.text = weatherResponse.current.weather[0].description
-            tvDynamicPressure.text = String.format("%d %s", weatherResponse.current.pressure, getString(R.string.hpa))
-            tvDynamicHumidity.text = String.format("%d %s", weatherResponse.current.humidity, getString(R.string.percentage))
-            tvDynamicCloud.text = String.format("%d %s", weatherResponse.current.clouds, getString(R.string.percentage))
+            tvDynamicPressure.text =
+                String.format("%d %s", weatherResponse.current.pressure, getString(R.string.hpa))
+            tvDynamicHumidity.text = String.format(
+                "%d %s",
+                weatherResponse.current.humidity,
+                getString(R.string.percentage)
+            )
+            tvDynamicCloud.text = String.format(
+                "%d %s",
+                weatherResponse.current.clouds,
+                getString(R.string.percentage)
+            )
             tvDynamicViolet.text = String.format("%.1f", weatherResponse.current.uvi)
-            tvDynamicVisibility.text = String.format("%d %s", weatherResponse.current.visibility, getString(R.string.m))
+            tvDynamicVisibility.text =
+                String.format("%d %s", weatherResponse.current.visibility, getString(R.string.m))
 
             if (sharedViewModel.readStringFromSettingSP(Constants.LANGUAGE) == Constants.ARABIC) {
                 tvDate.text = Functions.fromUnixToString(weatherResponse.current.dt, "ar")

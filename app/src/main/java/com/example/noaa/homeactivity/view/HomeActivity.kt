@@ -36,7 +36,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-const val TAG = "hassankamal"
+public const val TAG = "hassankamal"
 const val My_LOCATION_PERMISSION_ID = 5005
 
 class HomeActivity : AppCompatActivity() {

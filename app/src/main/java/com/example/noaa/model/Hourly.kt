@@ -3,7 +3,7 @@ package com.example.noaa.model
 data class Hourly(
     val clouds: Int,
     val dew_point: Double,
-    val dt: Int,
+    val dt: Long,
     val feels_like: Double,
     val humidity: Int,
     val pop: Double,

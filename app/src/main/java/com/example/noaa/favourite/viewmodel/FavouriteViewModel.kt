@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.noaa.model.Place
 import com.example.noaa.model.RepoInterface
-import com.example.noaa.utilities.LocationUtility
+import com.example.noaa.utilities.PermissionUtility
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +19,7 @@ class FavouriteViewModel(private val repo: RepoInterface) : ViewModel() {
     val favouritePlacesStateFlow: StateFlow<List<Place>> get() = _favouritePlacesMutableStateFlow
 
     fun checkConnection(context: Context): Boolean {
-        return LocationUtility.checkConnection(context)
+        return PermissionUtility.checkConnection(context)
     }
 
     fun deletePlaceFromFav(place: Place) {

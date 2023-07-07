@@ -9,7 +9,7 @@ import android.net.NetworkCapabilities
 import android.util.Log
 import androidx.core.content.ContextCompat
 
-object LocationUtility {
+object PermissionUtility {
 
     fun checkPermission(context: Context): Boolean {
         Log.d("hassankamal", "checkPermission: ")
@@ -42,5 +42,14 @@ object LocationUtility {
         val network = connectivityManager.activeNetwork
         val capabilities = connectivityManager.getNetworkCapabilities(network)
         return capabilities != null && (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
+    }
+
+    fun notificationPermission(context: Context): Boolean{
+        var result = false
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+            == PackageManager.PERMISSION_GRANTED) {
+            result = true
+        }
+        return result
     }
 }

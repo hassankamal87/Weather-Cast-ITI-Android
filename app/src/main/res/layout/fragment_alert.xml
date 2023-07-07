@@ -19,6 +19,30 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/tv_alertUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="@string/notification_permission"
+        android:textColor="@color/red"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/_tv_title_alert" />
+
+    <Button
+        android:id="@+id/btn_enable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:text="@string/enable"
+        android:layout_marginStart="20dp"
+        android:textColor="@color/text_color"
+        android:textSize="20sp"
+        app:layout_constraintStart_toEndOf="@id/tv_alertUser"
+        app:layout_constraintBottom_toBottomOf="@id/tv_alertUser"
+        app:layout_constraintTop_toTopOf="@id/tv_alertUser" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_alerts"
         android:layout_width="0dp"
@@ -28,7 +52,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/_tv_title_alert"
+        app:layout_constraintTop_toBottomOf="@id/tv_alertUser"
         tools:listitem="@layout/item_alert" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -37,11 +61,11 @@
         android:layout_height="wrap_content"
         android:layout_margin="18dp"
         android:backgroundTint="@color/text_color"
+        android:contentDescription="@string/add_alert"
+        android:src="@drawable/alert_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:rippleColor="@color/second_color_yellow"
-        android:src="@drawable/alert_add"
-        app:tint="@color/second_color_yellow"
-        android:contentDescription="@string/add_alert"/>
+        app:tint="@color/second_color_yellow" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

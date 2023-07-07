@@ -1,7 +1,6 @@
 package com.example.noaa.homeactivity.viewmodel
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,9 +10,8 @@ import com.example.noaa.model.Place
 import com.example.noaa.model.RepoInterface
 import com.example.noaa.model.WeatherResponse
 import com.example.noaa.services.network.ApiState
-import com.example.noaa.services.sharepreferences.SettingSharedPref
 import com.example.noaa.utilities.Constants
-import com.example.noaa.utilities.LocationUtility
+import com.example.noaa.utilities.PermissionUtility
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -38,11 +36,11 @@ class SharedViewModel(
 
     fun getLocation(context: Context) {
         Log.w(TAG, "getLocation: timmme")
-        if (LocationUtility.checkConnection(context)) {
+        if (PermissionUtility.checkConnection(context)) {
             when (readStringFromSettingSP(Constants.LOCATION)) {
                 Constants.GPS -> {
-                    if (LocationUtility.checkPermission(context)) {
-                        if (LocationUtility.isLocationIsEnabled(context)) {
+                    if (PermissionUtility.checkPermission(context)) {
+                        if (PermissionUtility.isLocationIsEnabled(context)) {
                             viewModelScope.launch {
                                 repo.getCurrentLocation().collectLatest {
                                     _coordinateMutableStateFlow.value = it
@@ -112,7 +110,7 @@ class SharedViewModel(
     }
 
     fun checkConnection(context: Context): Boolean {
-        return LocationUtility.checkConnection(context)
+        return PermissionUtility.checkConnection(context)
     }
 
     fun writeStringToSettingSP(key: String, value: String){
