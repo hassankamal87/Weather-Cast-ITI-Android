@@ -5,6 +5,9 @@ import android.os.Bundle
 import androidx.core.view.postOnAnimationDelayed
 import com.example.noaa.databinding.ActivityMainBinding
 import com.example.noaa.homeactivity.view.HomeActivity
+import com.example.noaa.services.sharepreferences.SettingSharedPref
+import com.example.noaa.utilities.Constants
+import com.example.noaa.utilities.Functions
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -14,6 +17,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setDefaultLanguage()
+
         binding.lottieAnimation.postOnAnimationDelayed(3000){
             val intent = Intent(this, HomeActivity::class.java)
             startActivity(intent)
@@ -22,5 +27,11 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-
+    private fun setDefaultLanguage() {
+        if (SettingSharedPref.getInstance(this).readStringFromSettingSP(Constants.LANGUAGE) == Constants.ARABIC) {
+            Functions.changeLanguage(this, "ar")
+        } else {
+            Functions.changeLanguage(this, "en")
+        }
+    }
 }

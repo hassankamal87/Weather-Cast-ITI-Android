@@ -26,6 +26,7 @@ import com.example.noaa.services.network.RemoteSource
 import com.example.noaa.services.notification.NotificationChannelHelper
 import com.example.noaa.services.sharepreferences.SettingSharedPref
 import com.example.noaa.utilities.Constants
+import com.example.noaa.utilities.PermissionUtility
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.runBlocking
 
@@ -33,28 +34,23 @@ class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         val item = intent?.getSerializableExtra(Constants.ALARM_ITEM) as AlarmItem
         var messageFromApi = "The weather has cleared up and conditions are now good"
-        Log.w(TAG, "onReceive: ${item.latitude},   ${item.longitude}", )
         runBlocking {
             context?.let {
+
                 ConcreteLocalSource.getInstance(it).deleteAlarm(item)
 
-                /*RemoteSource.getWeatherResponse(Coordinate(item.latitude, item.longitude), "en")
-                    .collectLatest { weatherData->
-                        if(weatherData.isSuccessful){
-                            val mes = weatherData.body()!!.alerts?.get(0)?.description ?: "null"
-                            if(mes!="null")
-                            messageFromApi = mes
+                if (PermissionUtility.checkConnection(it)) {
+                    RemoteSource.getWeatherResponse(Coordinate(item.latitude, item.longitude), "en")
+                        .collectLatest { weatherData ->
+                            if (weatherData.isSuccessful) {
+                                val mes = weatherData.body()!!.alerts?.get(0)?.description ?: "null"
+                                if (mes != "null")
+                                    messageFromApi = mes
+                            }
                         }
-                    }*/
-
-                val mes = SettingSharedPref.getInstance(context)
-                    .readStringFromSettingSP(Constants.ALERT_DESCRIPTION)
-                if (mes != "null") {
-                    messageFromApi = mes
                 }
             }
         }
-
 
         when (item.kind) {
             Constants.NOTIFICATION -> {
@@ -71,55 +67,65 @@ class AlarmReceiver : BroadcastReceiver() {
         }
 
 
-
     }
 
     @SuppressLint("MissingPermission")
     fun createNotification(context: Context, messageFromApi: String) {
 
-        val builder = NotificationChannelHelper.createNotification(
-            context,
-            messageFromApi
-        )
-        with(NotificationManagerCompat.from(context)) {
-            notify(Constants.NOTIFICATION_ID, builder.build())
+        if (isNotificationEnabled(context)) {
+            val builder = NotificationChannelHelper.createNotification(
+                context,
+                messageFromApi
+            )
+            with(NotificationManagerCompat.from(context)) {
+                notify(Constants.NOTIFICATION_ID, builder.build())
+            }
+            val mediaPlayer = MediaPlayer.create(context, R.raw.pop_up)
+            mediaPlayer.start()
         }
-
     }
 
 
     private fun createAlertDialog(context: Context, messageFromApi: String) {
 
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.alert_dialog_alarm, null)
-        val dialogMessage = dialogView.findViewById<TextView>(R.id.alert_description)
-        val dialogOkButton = dialogView.findViewById<Button>(R.id.alert_stop)
+        if (isNotificationEnabled(context)) {
+            val dialogView = LayoutInflater.from(context).inflate(R.layout.alert_dialog_alarm, null)
+            val dialogMessage = dialogView.findViewById<TextView>(R.id.alert_description)
+            val dialogOkButton = dialogView.findViewById<Button>(R.id.alert_stop)
 
-        dialogMessage.text = messageFromApi
-        val mediaPlayer = MediaPlayer.create(context, R.raw.alert)
+            dialogMessage.text = messageFromApi
 
+            val mediaPlayer = MediaPlayer.create(context, R.raw.alert)
 
-        val builder = AlertDialog.Builder(context, R.style.MyCustomAlertDialogStyle)
-        builder.setView(dialogView)
-        val dialog = builder.create()
-        dialog.setCancelable(false)
-        val window = dialog.window
-        window?.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
-        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        window?.setGravity(Gravity.TOP)
-        dialog.show()
+            val builder = AlertDialog.Builder(context, R.style.MyCustomAlertDialogStyle)
+            builder.setView(dialogView)
 
-        dialog.setOnShowListener {
-            mediaPlayer.start()
-            mediaPlayer.isLooping = true
-        }
+            val dialog = builder.create()
+            dialog.setCancelable(false)
+            dialog.setOnShowListener {
+                mediaPlayer.start()
+                mediaPlayer.isLooping = true
+            }
 
-        dialogOkButton.setOnClickListener {
-            dialog.dismiss()
-        }
+            val window = dialog.window
+            window?.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            window?.setGravity(Gravity.TOP)
 
-        dialog.setOnDismissListener {
-            mediaPlayer.stop()
+            dialog.show()
+
+            dialogOkButton.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            dialog.setOnDismissListener {
+                mediaPlayer.stop()
+            }
         }
     }
+
+    private fun isNotificationEnabled(context: Context) =
+        SettingSharedPref.getInstance(context)
+            .readStringFromSettingSP(Constants.NOTIFICATION) == Constants.ENABLE
 
 }

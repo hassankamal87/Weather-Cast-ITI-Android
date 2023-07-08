@@ -7,7 +7,7 @@ import android.content.Intent
 import com.example.noaa.model.AlarmItem
 import com.example.noaa.utilities.Constants
 
-class AlarmScheduler(context: Context) : AlarmSchedulerInterface {
+class AlarmScheduler private constructor(context: Context) : AlarmSchedulerInterface {
     private val alarmManager: AlarmManager by lazy {
         context.getSystemService(AlarmManager::class.java)
     }

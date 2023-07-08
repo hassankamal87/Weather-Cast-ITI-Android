@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
@@ -59,6 +58,8 @@ class AlertFragment : Fragment() {
     private lateinit var bindingAlertLayout: AlertDialogLayoutBinding
     private lateinit var alertViewModel: AlertViewModel
     private lateinit var alertRecyclerAdapter: AlertRecyclerAdapter
+    private var currentLatitude: Double = 0.0
+    private var currentLongitude: Double = 0.0
 
 
     override fun onCreateView(
@@ -73,6 +74,7 @@ class AlertFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         NotificationChannelHelper.createNotificationChannel(requireContext())
+
         val factory = AlertViewModelFactory(
             Repo.getInstance(
                 RemoteSource, LocationClient.getInstance(
@@ -80,11 +82,15 @@ class AlertFragment : Fragment() {
                 ),
                 ConcreteLocalSource.getInstance(requireContext()),
                 SettingSharedPref.getInstance(requireContext())
-            )
+            ),
+            AlarmScheduler.getInstance(requireContext())
         )
 
         alertViewModel = ViewModelProvider(this, factory)[AlertViewModel::class.java]
+
+        alertViewModel.getCashedData()
         alertViewModel.getAllAlarms()
+
         alertRecyclerAdapter = AlertRecyclerAdapter()
         binding.rvAlerts.adapter = alertRecyclerAdapter
         deleteBySwipe()
@@ -94,15 +100,24 @@ class AlertFragment : Fragment() {
                 alertRecyclerAdapter.submitList(it)
             }
         }
-        binding.fabAddAlert.setOnClickListener {
 
-            if (PermissionUtility.notificationPermission(requireContext())) {
-                showTimeDialog()
-            } else {
-                showSettingDialog()
+        lifecycleScope.launch {
+            alertViewModel.coordinateStateFlow.collect {
+                currentLatitude = it.latitude
+                currentLongitude = it.longitude
             }
+        }
 
-
+        binding.fabAddAlert.setOnClickListener {
+            if (alertViewModel.isNotificationEnabled()) {
+                if (PermissionUtility.notificationPermission(requireContext())) {
+                    showTimeDialog()
+                } else {
+                    showSettingDialog()
+                }
+            }else{
+                Toast.makeText(requireContext(), "you need to enable notification first.", Toast.LENGTH_SHORT).show()
+            }
         }
 
         binding.btnEnableNotification.setOnClickListener {
@@ -120,6 +135,8 @@ class AlertFragment : Fragment() {
     }
 
     private fun showTimeDialog() {
+        val currentTimeInMillis = System.currentTimeMillis()
+
         val dialog = Dialog(requireContext())
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCancelable(true)
@@ -127,27 +144,21 @@ class AlertFragment : Fragment() {
         dialog.setContentView(bindingAlertLayout.root)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
+        bindingAlertLayout.tvFromDateDialog.text = Functions.formatLongToAnyString(currentTimeInMillis, "dd MMM yyyy")
+        bindingAlertLayout.tvFromTimeDialog.text = Functions.formatLongToAnyString(currentTimeInMillis + 60*1000, "hh:mm a")
+
         bindingAlertLayout.cvFrom.setOnClickListener {
             showDatePicker()
         }
 
         bindingAlertLayout.radioGroupAlertDialog.setOnCheckedChangeListener { _, checkedId ->
-            if (checkedId == bindingAlertLayout.radioAlert.id) {
+            if (checkedId == bindingAlertLayout.radioAlert.id && !Settings.canDrawOverlays(requireContext())) {
                 requestOverlayPermission()
+                dialog.dismiss()
             }
         }
 
-
         bindingAlertLayout.btnSaveDialog.setOnClickListener {
-
-            var lat = 0.0
-            var lon = 0.0
-          /*  lifecycleScope.launch {
-                alertViewModel.getCashedData().collectLatest {
-                    lat = it.lat
-                    lon = it.lon
-                }
-            }*/
 
             val kindId = bindingAlertLayout.radioGroupAlertDialog.checkedRadioButtonId
             var kind: String = Constants.NOTIFICATION
@@ -160,11 +171,11 @@ class AlertFragment : Fragment() {
                 bindingAlertLayout.tvFromTimeDialog.text.toString()
             )
 
-            val currentTimeInMillis = System.currentTimeMillis()
-            val alarmItem = AlarmItem(time = time, kind = kind, lat, lon)
+
+            val alarmItem = AlarmItem(time, kind, currentLatitude, currentLongitude)
             if (time > currentTimeInMillis) {
                 alertViewModel.insertAlarm(alarmItem)
-                startAlarmManager(alarmItem)
+                alertViewModel.createAlarmScheduler(alarmItem, requireContext())
                 dialog.dismiss()
             } else {
                 Toast.makeText(
@@ -177,15 +188,6 @@ class AlertFragment : Fragment() {
 
         dialog.show()
 
-    }
-
-
-    private fun startAlarmManager(alarmItem: AlarmItem) {
-        AlarmScheduler.getInstance(
-            requireContext()
-        ).createAlarm(
-            alarmItem, requireContext()
-        )
     }
 
     private fun showSettingDialog() {
@@ -204,13 +206,10 @@ class AlertFragment : Fragment() {
             .show()
     }
 
-
     private fun requestOverlayPermission() {
-        if (!Settings.canDrawOverlays(requireContext())) {
             val intent = Intent(ACTION_MANAGE_OVERLAY_PERMISSION)
             intent.data = Uri.parse("package:com.example.noaa")
             startActivity(intent)
-        }
     }
 
     private fun requestNotificationPermission() {
@@ -235,11 +234,9 @@ class AlertFragment : Fragment() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
                 val alarmItem = alertRecyclerAdapter.currentList[position]
+
                 alertViewModel.deleteAlarm(alarmItem)
-                val mediaPlayer = MediaPlayer.create(context, R.raw.deleted)
-                mediaPlayer.start()
-                AlarmScheduler.getInstance(requireContext())
-                    .cancelAlarm(alarmItem, requireContext())
+                alertViewModel.cancelAlarmScheduler(alarmItem, requireContext())
 
             }
         }
@@ -263,13 +260,8 @@ class AlertFragment : Fragment() {
         datePicker.show(parentFragmentManager, "date")
 
         datePicker.addOnPositiveButtonClickListener { date ->
-            val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-            val stringDate = Date(date)
-            val formattedDate = dateFormat.format(stringDate)
-            bindingAlertLayout.tvFromDateDialog.text = formattedDate
+            bindingAlertLayout.tvFromDateDialog.text = Functions.formatLongToAnyString(date, "dd MMM yyyy")
             showTimePicker()
-
-
         }
     }
 
