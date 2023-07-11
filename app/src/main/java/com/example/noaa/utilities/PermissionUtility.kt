@@ -9,9 +9,9 @@ import android.net.NetworkCapabilities
 import android.util.Log
 import androidx.core.content.ContextCompat
 
-object PermissionUtility {
+object PermissionUtility : PermissionUtilityInterface {
 
-    fun checkPermission(context: Context): Boolean {
+    override fun checkPermission(context: Context): Boolean {
         Log.d("hassankamal", "checkPermission: ")
         var result = false
         if (ContextCompat.checkSelfPermission(
@@ -28,7 +28,7 @@ object PermissionUtility {
         return result
     }
 
-    fun isLocationIsEnabled(context: Context): Boolean {
+    override fun isLocationIsEnabled(context: Context): Boolean {
         Log.d("hassankamal", "isLocationIsEnabled: ")
         val locationManager: LocationManager =
             context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -37,14 +37,14 @@ object PermissionUtility {
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
-    fun checkConnection(context: Context): Boolean {
+    override fun checkConnection(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork
         val capabilities = connectivityManager.getNetworkCapabilities(network)
         return capabilities != null && (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
     }
 
-    fun notificationPermission(context: Context): Boolean{
+    override fun notificationPermission(context: Context): Boolean{
         var result = false
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
             == PackageManager.PERMISSION_GRANTED) {

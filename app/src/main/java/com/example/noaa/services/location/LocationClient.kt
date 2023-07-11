@@ -1,16 +1,12 @@
 package com.example.noaa.services.location
 
 import android.annotation.SuppressLint
-import android.os.Looper
 import android.util.Log
 import com.example.noaa.homeactivity.view.TAG
 import com.example.noaa.model.Coordinate
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.tasks.CancellationTokenSource
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
@@ -40,8 +36,8 @@ class LocationClient private constructor(
         return sharedFlow
     }
 
-    @SuppressLint("MissingPermission")
-    override fun requestNewLocationData() {
+    /*@SuppressLint("MissingPermission")
+    fun requestNewLocationData() {
         Log.d(TAG, "requestNewLocationData: ")
         val locationRequest = LocationRequest()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
@@ -68,14 +64,13 @@ class LocationClient private constructor(
             val result = sharedFlow.tryEmit(Coordinate(latitude, longitude))
             Log.w(TAG, "onLocationResult: $result")
         }
-    }
+    }*/
 
 
     @SuppressLint("MissingPermission")
     fun getCurrentLocationTwo(){
         fusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token).addOnSuccessListener {
-            val result = sharedFlow.tryEmit(Coordinate(it.latitude, it.longitude))
-            Log.d(TAG, "getCurrentLocationTwo: resutl from other function $result ${it.longitude}")
+            sharedFlow.tryEmit(Coordinate(it.latitude, it.longitude))
         }
     }
 

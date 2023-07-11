@@ -61,7 +61,7 @@ class Repo private constructor(
         localSource.deleteCashedData()
     }
 
-    override fun getCashedData(): Flow<WeatherResponse> {
+    override fun getCashedData(): Flow<WeatherResponse>? {
         return localSource.getCashedData()
     }
 

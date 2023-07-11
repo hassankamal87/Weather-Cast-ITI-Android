@@ -62,7 +62,6 @@
     </style>
 
     <style name="MyCustomAlertDialogStyle" parent="Theme.Material3.Light.Dialog.Alert">
-        <item name="android:button">@style/Widget.Material3.Button</item>
     </style>
 
 </resources>

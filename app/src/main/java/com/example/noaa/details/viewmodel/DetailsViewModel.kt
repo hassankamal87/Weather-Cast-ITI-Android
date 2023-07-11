@@ -1,12 +1,10 @@
 package com.example.noaa.details.viewmodel
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.noaa.model.Coordinate
 import com.example.noaa.model.RepoInterface
 import com.example.noaa.services.network.ApiState
-import com.example.noaa.services.sharepreferences.SettingSharedPref
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

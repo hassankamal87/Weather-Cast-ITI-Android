@@ -30,15 +30,15 @@ object NotificationChannelHelper {
         }
     }
 
-    fun createNotification(context: Context, description: String): NotificationCompat.Builder {
+    fun createNotification(context: Context, description: String, zoneName: String): NotificationCompat.Builder {
         val pendingIntent = createPendingIntent(context)
         val builder = NotificationCompat.Builder(context, Constants.CHANNEL_ID)
-        builder.setSmallIcon(R.drawable.icon_notify)
+        builder.setSmallIcon(R.drawable.notfy_icon)
         builder.setContentTitle("NOAA WEATHER")
-        builder.setContentText(description)
+        builder.setContentText("$description in $zoneName")
         builder.setStyle(
             NotificationCompat.BigTextStyle()
-                .bigText(description)
+                .bigText("$description in $zoneName")
         )
         builder.priority = NotificationCompat.PRIORITY_DEFAULT
         builder.setContentIntent(pendingIntent)

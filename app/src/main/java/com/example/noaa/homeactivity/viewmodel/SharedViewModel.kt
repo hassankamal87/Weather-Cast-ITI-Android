@@ -1,10 +1,8 @@
 package com.example.noaa.homeactivity.viewmodel
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.noaa.homeactivity.view.TAG
 import com.example.noaa.model.Coordinate
 import com.example.noaa.model.Place
 import com.example.noaa.model.RepoInterface
@@ -35,7 +33,6 @@ class SharedViewModel(
     val weatherResponseStateFlow: StateFlow<ApiState> get() = _weatherResponseMutableStateFlow
 
     fun getLocation(context: Context) {
-        Log.w(TAG, "getLocation: timmme")
         if (PermissionUtility.checkConnection(context)) {
             when (readStringFromSettingSP(Constants.LOCATION)) {
                 Constants.GPS -> {
@@ -99,7 +96,7 @@ class SharedViewModel(
 
     private fun getCashedData() {
         viewModelScope.launch(Dispatchers.IO) {
-            repo.getCashedData().collect {
+            repo.getCashedData()?.collect {
                 try {
                     _weatherResponseMutableStateFlow.value = ApiState.Success(it)
                 }catch (_:Exception){

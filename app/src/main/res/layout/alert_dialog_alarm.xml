@@ -26,6 +26,17 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+            android:id="@+id/zoneName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/alert_title"
+            android:textSize="15sp"
+            android:textColor="@color/text_color"
+            />
+
+        <TextView
             android:id="@+id/alert_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,7 +44,7 @@
             android:textSize="18sp"
             android:layout_margin="18dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/alert_title" />
+            app:layout_constraintTop_toBottomOf="@id/zoneName" />
 
         <Button
             android:id="@+id/alert_stop"

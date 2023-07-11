@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.Window
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -31,7 +30,6 @@ import com.example.noaa.services.location.LocationClient
 import com.example.noaa.services.network.RemoteSource
 import com.example.noaa.services.sharepreferences.SettingSharedPref
 import com.example.noaa.utilities.Functions
-import com.example.noaa.utilities.PermissionUtility
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

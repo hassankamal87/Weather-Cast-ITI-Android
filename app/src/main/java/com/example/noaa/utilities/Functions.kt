@@ -89,7 +89,7 @@ object Functions {
     }
 
     fun formatFromStringToLong(dateText: String, timeText: String): Long {
-        val dateFormat = SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.US)
+        val dateFormat = SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.getDefault())
         val dateAndTime = "$dateText $timeText}"
         val date = dateFormat.parse(dateAndTime)
         return date?.time ?: -1

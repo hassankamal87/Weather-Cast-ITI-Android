@@ -16,7 +16,7 @@ interface LocalSource {
 
     suspend fun deleteCashedData()
 
-    fun getCashedData(): Flow<WeatherResponse>
+    fun getCashedData(): Flow<WeatherResponse>?
 
     suspend fun insertAlarm(alarmItem: AlarmItem)
 

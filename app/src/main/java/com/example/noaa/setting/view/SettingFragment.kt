@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.example.noaa.R
@@ -87,14 +88,14 @@ class SettingFragment : Fragment() {
                     Constants.LANGUAGE, Constants.ARABIC
                 )
                 Functions.changeLanguage(requireActivity(), "ar")
-                restartApplication()
             } else {
                 sharedViewModel.writeStringToSettingSP(
                     Constants.LANGUAGE, Constants.ENGLISH
                 )
                 Functions.changeLanguage(requireActivity(), "en")
-                restartApplication()
             }
+            Toast.makeText(requireContext(), "NOAA Restarting", Toast.LENGTH_LONG).show()
+            restartApplication()
         }
 
 

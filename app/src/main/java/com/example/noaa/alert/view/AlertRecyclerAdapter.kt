@@ -13,22 +13,26 @@ import com.example.noaa.utilities.Functions
 class AlertRecyclerAdapter :
     ListAdapter<AlarmItem, AlertRecyclerAdapter.AlertViewHolder>(RecyclerDiffUtilAlarmItem()) {
 
-    lateinit var binding: ItemAlertBinding
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlertViewHolder {
         val inflater: LayoutInflater =
             parent.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        binding = ItemAlertBinding.inflate(inflater, parent, false)
+        val binding = ItemAlertBinding.inflate(inflater, parent, false)
         return AlertViewHolder(binding)
     }
 
 
     override fun onBindViewHolder(holder: AlertViewHolder, position: Int) {
         val currentItem = getItem(position)
+        holder.onBind(currentItem)
+    }
 
-        holder.apply {
+    inner class AlertViewHolder(private val binding: ItemAlertBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun onBind(currentItem: AlarmItem) {
             binding.apply {
                 tvKind.text = currentItem.kind
+                tvZoneName.text = currentItem.zoneName
 
                 tvFromDate.text =
                     Functions.formatLongToAnyString(currentItem.time, "dd MMM yyyy")
@@ -39,9 +43,6 @@ class AlertRecyclerAdapter :
             }
         }
     }
-
-    inner class AlertViewHolder(private val binding: ItemAlertBinding) :
-        RecyclerView.ViewHolder(binding.root)
 }
 
 class RecyclerDiffUtilAlarmItem : DiffUtil.ItemCallback<AlarmItem>() {

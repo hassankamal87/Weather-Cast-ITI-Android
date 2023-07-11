@@ -22,7 +22,7 @@ interface RepoInterface {
 
     suspend fun deleteCashedData()
 
-    fun getCashedData(): Flow<WeatherResponse>
+    fun getCashedData(): Flow<WeatherResponse>?
 
     fun writeStringToSettingSP(key: String, value: String)
 

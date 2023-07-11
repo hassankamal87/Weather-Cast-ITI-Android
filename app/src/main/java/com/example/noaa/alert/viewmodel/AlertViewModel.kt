@@ -4,10 +4,9 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.noaa.model.AlarmItem
-import com.example.noaa.model.Coordinate
 import com.example.noaa.model.RepoInterface
 import com.example.noaa.services.alarm.AlarmScheduler
-import com.example.noaa.services.sharepreferences.SettingSharedPref
+import com.example.noaa.services.network.ApiState
 import com.example.noaa.utilities.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,17 +14,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class AlertViewModel(private val repo: RepoInterface, private val alarmScheduler: AlarmScheduler) : ViewModel() {
+class AlertViewModel(private val repo: RepoInterface, private val alarmScheduler: AlarmScheduler) :
+    ViewModel() {
 
     private val _alarmsMutableStateFlow: MutableStateFlow<List<AlarmItem>> = MutableStateFlow(
         emptyList()
     )
     val alarmsStateFlow: StateFlow<List<AlarmItem>> get() = _alarmsMutableStateFlow
 
-    private val _coordinateMutableStateFlow: MutableStateFlow<Coordinate> = MutableStateFlow(
-        Coordinate(0.0,0.0)
-    )
-    val coordinateStateFlow: StateFlow<Coordinate> get() = _coordinateMutableStateFlow
+    private val _weatherResponseMutableStateFlow: MutableStateFlow<ApiState> =
+        MutableStateFlow(ApiState.Loading)
+    val weatherResponseStateFlow: StateFlow<ApiState> get() = _weatherResponseMutableStateFlow
 
 
     fun insertAlarm(alarmItem: AlarmItem) {
@@ -50,24 +49,29 @@ class AlertViewModel(private val repo: RepoInterface, private val alarmScheduler
 
     fun getCashedData() {
         viewModelScope.launch(Dispatchers.IO) {
-            repo.getCashedData().collectLatest {
-                _coordinateMutableStateFlow.value = Coordinate(it.lat,  it.lon)
+            repo.getCashedData()?.let { data ->
+                data.collectLatest {
+                    if (it != null) {
+                        _weatherResponseMutableStateFlow.value = ApiState.Success(it)
+                    }
+                }
             }
         }
     }
 
-    fun createAlarmScheduler(alarmItem: AlarmItem, context: Context){
+    fun createAlarmScheduler(alarmItem: AlarmItem, context: Context) {
         alarmScheduler.createAlarm(alarmItem, context)
     }
 
-    fun cancelAlarmScheduler(alarmItem: AlarmItem, context: Context){
+    fun cancelAlarmScheduler(alarmItem: AlarmItem, context: Context) {
         alarmScheduler.cancelAlarm(alarmItem, context)
     }
 
-    fun readStringFromSettingSP(key: String): String{
+    fun readStringFromSettingSP(key: String): String {
         return repo.readStringFromSettingSP(key)
     }
 
-    fun isNotificationEnabled() = readStringFromSettingSP(Constants.NOTIFICATION) == Constants.ENABLE
+    fun isNotificationEnabled() =
+        readStringFromSettingSP(Constants.NOTIFICATION) != Constants.DISABLE
 
 }

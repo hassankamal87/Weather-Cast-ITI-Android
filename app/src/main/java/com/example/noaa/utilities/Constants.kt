@@ -5,10 +5,8 @@ object Constants {
     const val REQUEST_PERMISSION = "requestPermission"
     const val SHOW_INITIAL_DIALOG = "showInitialDialog"
     const val TRANSITION_TO_MAP = "transitionToMap"
-    const val SHOW_CASHED_DATA = "showCashedData"
 
     const val SETTING = "setting"
-    const val LOCATION_DATA = "location_data"
     const val LATITUDE = "latitude"
     const val LONGITUDE = "longitude"
 
@@ -30,7 +28,7 @@ object Constants {
     const val KELVIN = "kelvin"
     const val FAHRENHEIT = "fahrenheit"
 
-    const val REQUEST_CODE_MAP = 1254
+    //const val REQUEST_CODE_MAP = 1254
 
     const val WEATHER_API_KEY = "ec59a3c9baf2d69654b39307da4247c3"
     const val BASE_URL = "https://api.openweathermap.org/data/2.5/"

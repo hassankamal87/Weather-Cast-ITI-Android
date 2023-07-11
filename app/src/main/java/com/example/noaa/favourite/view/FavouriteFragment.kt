@@ -25,6 +25,7 @@ import com.example.noaa.services.network.RemoteSource
 import com.example.noaa.services.sharepreferences.SettingSharedPref
 import com.example.noaa.utilities.Constants
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -85,13 +86,17 @@ class FavouriteFragment : Fragment() {
                 place = favouriteRecyclerAdapter.currentList[position]
                 val mediaPlayer = MediaPlayer.create(context, R.raw.deleted)
                 mediaPlayer.start()
+
+                mediaPlayer.setOnCompletionListener { mp ->
+                    mp.release()
+                }
                 favouriteViewModel.deletePlaceFromFav(place)
-                /*Snackbar.make(view, "deleting Location.... ", Snackbar.LENGTH_LONG).apply {
-                    setAction("Confirm") {
-                        sharedViewModel.insertPlaceToFav(view.context, place)
+                Snackbar.make(view, "deleting Location.... ", Snackbar.LENGTH_LONG).apply {
+                    setAction("Undo") {
+                        favouriteViewModel.insertPlaceToFav(place)
                     }
                     show()
-                }*/
+                }
             }
         }
 

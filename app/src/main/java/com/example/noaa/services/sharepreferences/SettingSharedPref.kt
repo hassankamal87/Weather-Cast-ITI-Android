@@ -26,7 +26,7 @@ class SettingSharedPref private constructor(context: Context) : SettingSPInterfa
     }
 
     override fun readStringFromSettingSP(key: String): String {
-        var value = ""
+        var value :String
         sharedPreferences.getString(key, "null").let {
             value = it ?: "null"
         }
@@ -39,7 +39,7 @@ class SettingSharedPref private constructor(context: Context) : SettingSPInterfa
     }
 
     override fun readFloatFromSettingSP(key: String): Float {
-        var value = 0f
+        var value :Float
         sharedPreferences.getFloat(key, 0f).let {
             value = it
         }

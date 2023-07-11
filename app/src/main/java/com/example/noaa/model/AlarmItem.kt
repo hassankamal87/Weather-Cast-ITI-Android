@@ -10,5 +10,6 @@ data class AlarmItem(
     val time: Long,
     val kind: String,
     val latitude: Double,
-    val longitude: Double
+    val longitude: Double,
+    val zoneName: String = ""
 ): Serializable

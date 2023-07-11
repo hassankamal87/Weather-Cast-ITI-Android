@@ -27,7 +27,6 @@ class AlarmScheduler private constructor(context: Context) : AlarmSchedulerInter
         }
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
-            // item.time.atZone(ZoneId.systemDefault()).toEpochSecond() * 1000,
             item.time,
             PendingIntent.getBroadcast(
                 context,

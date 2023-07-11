@@ -28,6 +28,12 @@ class FavouriteViewModel(private val repo: RepoInterface) : ViewModel() {
         }
     }
 
+    fun insertPlaceToFav(place: Place) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.insertPlaceToFav(place)
+        }
+    }
+
     fun getAllFavouritePlaces() {
         viewModelScope.launch(Dispatchers.IO) {
             repo.getAllFavouritePlaces().collectLatest {

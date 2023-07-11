@@ -30,6 +30,7 @@ import com.example.noaa.model.Repo
 import com.example.noaa.services.alarm.AlarmScheduler
 import com.example.noaa.services.db.ConcreteLocalSource
 import com.example.noaa.services.location.LocationClient
+import com.example.noaa.services.network.ApiState
 import com.example.noaa.services.network.RemoteSource
 import com.example.noaa.services.notification.NotificationChannelHelper
 import com.example.noaa.services.sharepreferences.SettingSharedPref
@@ -41,15 +42,13 @@ import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.MaterialTimePicker.INPUT_MODE_CLOCK
 import com.google.android.material.timepicker.TimeFormat
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 
 
 class AlertFragment : Fragment() {
@@ -60,6 +59,7 @@ class AlertFragment : Fragment() {
     private lateinit var alertRecyclerAdapter: AlertRecyclerAdapter
     private var currentLatitude: Double = 0.0
     private var currentLongitude: Double = 0.0
+    private var currentZoneName = ""
 
 
     override fun onCreateView(
@@ -93,7 +93,7 @@ class AlertFragment : Fragment() {
 
         alertRecyclerAdapter = AlertRecyclerAdapter()
         binding.rvAlerts.adapter = alertRecyclerAdapter
-        deleteBySwipe()
+        deleteBySwipe(view)
 
         lifecycleScope.launch {
             alertViewModel.alarmsStateFlow.collectLatest {
@@ -102,9 +102,12 @@ class AlertFragment : Fragment() {
         }
 
         lifecycleScope.launch {
-            alertViewModel.coordinateStateFlow.collect {
-                currentLatitude = it.latitude
-                currentLongitude = it.longitude
+            alertViewModel.weatherResponseStateFlow.collectLatest {
+                if(it is ApiState.Success){
+                    currentLatitude = it.weatherResponse.lat
+                    currentLongitude = it.weatherResponse.lon
+                    currentZoneName = it.weatherResponse.timezone
+                }
             }
         }
 
@@ -115,8 +118,12 @@ class AlertFragment : Fragment() {
                 } else {
                     showSettingDialog()
                 }
-            }else{
-                Toast.makeText(requireContext(), "you need to enable notification first.", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "you need to enable notification first.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -144,15 +151,20 @@ class AlertFragment : Fragment() {
         dialog.setContentView(bindingAlertLayout.root)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-        bindingAlertLayout.tvFromDateDialog.text = Functions.formatLongToAnyString(currentTimeInMillis, "dd MMM yyyy")
-        bindingAlertLayout.tvFromTimeDialog.text = Functions.formatLongToAnyString(currentTimeInMillis + 60*1000, "hh:mm a")
+        bindingAlertLayout.tvFromDateDialog.text =
+            Functions.formatLongToAnyString(currentTimeInMillis, "dd MMM yyyy")
+        bindingAlertLayout.tvFromTimeDialog.text =
+            Functions.formatLongToAnyString(currentTimeInMillis + 60 * 1000, "hh:mm a")
 
         bindingAlertLayout.cvFrom.setOnClickListener {
             showDatePicker()
         }
 
         bindingAlertLayout.radioGroupAlertDialog.setOnCheckedChangeListener { _, checkedId ->
-            if (checkedId == bindingAlertLayout.radioAlert.id && !Settings.canDrawOverlays(requireContext())) {
+            if (checkedId == bindingAlertLayout.radioAlert.id && !Settings.canDrawOverlays(
+                    requireContext()
+                )
+            ) {
                 requestOverlayPermission()
                 dialog.dismiss()
             }
@@ -172,7 +184,7 @@ class AlertFragment : Fragment() {
             )
 
 
-            val alarmItem = AlarmItem(time, kind, currentLatitude, currentLongitude)
+            val alarmItem = AlarmItem(time, kind, currentLatitude, currentLongitude, currentZoneName)
             if (time > currentTimeInMillis) {
                 alertViewModel.insertAlarm(alarmItem)
                 alertViewModel.createAlarmScheduler(alarmItem, requireContext())
@@ -207,9 +219,9 @@ class AlertFragment : Fragment() {
     }
 
     private fun requestOverlayPermission() {
-            val intent = Intent(ACTION_MANAGE_OVERLAY_PERMISSION)
-            intent.data = Uri.parse("package:com.example.noaa")
-            startActivity(intent)
+        val intent = Intent(ACTION_MANAGE_OVERLAY_PERMISSION)
+        intent.data = Uri.parse("package:com.example.noaa")
+        startActivity(intent)
     }
 
     private fun requestNotificationPermission() {
@@ -218,7 +230,7 @@ class AlertFragment : Fragment() {
         startActivity(intent)
     }
 
-    private fun deleteBySwipe() {
+    private fun deleteBySwipe(view: View) {
         val itemTouchHelperCallBack = object : ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.UP or ItemTouchHelper.DOWN,
             ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
@@ -235,9 +247,21 @@ class AlertFragment : Fragment() {
                 val position = viewHolder.adapterPosition
                 val alarmItem = alertRecyclerAdapter.currentList[position]
 
+                val mediaPlayer = MediaPlayer.create(context, R.raw.deleted)
+                mediaPlayer.start()
+                mediaPlayer.setOnCompletionListener { mp ->
+                    mp.release()
+                }
                 alertViewModel.deleteAlarm(alarmItem)
                 alertViewModel.cancelAlarmScheduler(alarmItem, requireContext())
+                Snackbar.make(view, "deleting Alarm.... ", Snackbar.LENGTH_LONG).apply {
+                    setAction("Undo") {
+                        alertViewModel.insertAlarm(alarmItem)
+                        alertViewModel.createAlarmScheduler(alarmItem, requireContext())
+                    }
+                    show()
 
+                }
             }
         }
 
@@ -260,7 +284,8 @@ class AlertFragment : Fragment() {
         datePicker.show(parentFragmentManager, "date")
 
         datePicker.addOnPositiveButtonClickListener { date ->
-            bindingAlertLayout.tvFromDateDialog.text = Functions.formatLongToAnyString(date, "dd MMM yyyy")
+            bindingAlertLayout.tvFromDateDialog.text =
+                Functions.formatLongToAnyString(date, "dd MMM yyyy")
             showTimePicker()
         }
     }
