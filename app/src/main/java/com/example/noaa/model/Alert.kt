@@ -5,5 +5,6 @@ data class Alert(
     val event: String,
     val start: Long,
     val end: Long,
-    val description: String
+    val description: String,
+    val tags: List<String>
 )

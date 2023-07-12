@@ -46,6 +46,12 @@ object Functions {
         return sdf.format(date).uppercase(Locale.ROOT)
     }
 
+    fun fromUnixToStringTime(time: Int, lang: String): String {
+        val sdf = SimpleDateFormat("hh:mm a", Locale(lang))
+        val date = Date(time * 1000L)
+        return sdf.format(date).uppercase(Locale.ROOT)
+    }
+
     fun formatDayOfWeek(timestamp: Int, context: Context, lang: String): String {
         val sdf = SimpleDateFormat("EEE", Locale(lang))
         val calendar: Calendar = Calendar.getInstance()

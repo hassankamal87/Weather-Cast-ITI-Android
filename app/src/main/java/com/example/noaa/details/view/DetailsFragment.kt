@@ -142,8 +142,12 @@ class DetailsFragment : Fragment() {
 
             if (detailViewModel.readStringFromSettingSP(Constants.LANGUAGE) == Constants.ARABIC) {
                 tvDateDetails.text = Functions.fromUnixToString(weatherResponse.current.dt, "ar")
+                tvSunRiseDetails.text = Functions.fromUnixToStringTime(weatherResponse.current.sunrise, "ar")
+                tvSunSetDetails.text = Functions.fromUnixToStringTime(weatherResponse.current.sunset, "ar")
             } else {
                 tvDateDetails.text = Functions.fromUnixToString(weatherResponse.current.dt, "en")
+                tvSunRiseDetails.text = Functions.fromUnixToStringTime(weatherResponse.current.sunrise, "en")
+                tvSunSetDetails.text = Functions.fromUnixToStringTime(weatherResponse.current.sunset, "en")
             }
 
             when (detailViewModel.readStringFromSettingSP(Constants.TEMPERATURE)) {
@@ -191,6 +195,10 @@ class DetailsFragment : Fragment() {
             cvDetailsDetails.visibility = View.VISIBLE
             rvDaysDetails.visibility = View.VISIBLE
             rvHoursDetails.visibility = View.VISIBLE
+            sunRiseDetails.visibility = View.VISIBLE
+            sunSetDetails.visibility = View.VISIBLE
+            tvSunRiseDetails.visibility = View.VISIBLE
+            tvSunSetDetails.visibility = View.VISIBLE
         }
     }
 

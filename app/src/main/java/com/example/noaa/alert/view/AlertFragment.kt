@@ -107,6 +107,9 @@ class AlertFragment : Fragment() {
                     currentLatitude = it.weatherResponse.lat
                     currentLongitude = it.weatherResponse.lon
                     currentZoneName = it.weatherResponse.timezone
+                    try {
+                        currentZoneName = Functions.setLocationNameByGeoCoder(it.weatherResponse, requireContext())
+                    }catch (_:Exception){}
                 }
             }
         }

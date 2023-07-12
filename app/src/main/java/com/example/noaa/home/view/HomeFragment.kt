@@ -2,7 +2,6 @@ package com.example.noaa.home.view
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,7 +12,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.noaa.R
 import com.example.noaa.databinding.FragmentHomeBinding
-import com.example.noaa.homeactivity.view.TAG
 import com.example.noaa.homeactivity.viewmodel.SharedViewModel
 import com.example.noaa.homeactivity.viewmodel.SharedViewModelFactory
 import com.example.noaa.model.Repo
@@ -38,21 +36,17 @@ class HomeFragment : Fragment() {
     private lateinit var hourlyRecyclerAdapter: HourlyRecyclerAdapter
     private lateinit var dailyRecyclerAdapter: DailyRecyclerAdapter
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         iconAnimation()
-
 
         val factory = SharedViewModelFactory(
             Repo.getInstance(
@@ -73,16 +67,10 @@ class HomeFragment : Fragment() {
             sharedViewModel.weatherResponseStateFlow.collect {
                 when (it) {
                     is ApiState.Success -> {
-                        Log.d(TAG, "onViewCreated: ${it.weatherResponse}")
                         withContext(Dispatchers.Main) {
                             setDataToViews(it.weatherResponse)
                         }
-                        if (sharedViewModel.checkConnection(requireContext())) {
-                            sharedViewModel.insertCashedData(it.weatherResponse)
-                            it.weatherResponse.alerts?.let {alerts->
-                                sharedViewModel.writeStringToSettingSP(Constants.ALERT_DESCRIPTION, alerts[0].description)
-                            }
-                        }
+                        insertCashedData(it.weatherResponse)
                     }
 
                     is ApiState.Loading -> {
@@ -133,7 +121,6 @@ class HomeFragment : Fragment() {
         binding.ivWeather.startAnimation(animation)
     }
 
-
     @SuppressLint("SetTextI18n")
     private fun setDataToViews(weatherResponse: WeatherResponse) {
         makeViewsVisible()
@@ -162,8 +149,12 @@ class HomeFragment : Fragment() {
 
             if (sharedViewModel.readStringFromSettingSP(Constants.LANGUAGE) == Constants.ARABIC) {
                 tvDate.text = Functions.fromUnixToString(weatherResponse.current.dt, "ar")
+                tvSunRise.text = Functions.fromUnixToStringTime(weatherResponse.current.sunrise, "ar")
+                tvSunSet.text = Functions.fromUnixToStringTime(weatherResponse.current.sunset, "ar")
             } else {
                 tvDate.text = Functions.fromUnixToString(weatherResponse.current.dt, "en")
+                tvSunRise.text = Functions.fromUnixToStringTime(weatherResponse.current.sunrise, "en")
+                tvSunSet.text = Functions.fromUnixToStringTime(weatherResponse.current.sunset, "en")
             }
 
             when (sharedViewModel.readStringFromSettingSP(Constants.TEMPERATURE)) {
@@ -212,6 +203,17 @@ class HomeFragment : Fragment() {
             cvDetails.visibility = View.VISIBLE
             rvDays.visibility = View.VISIBLE
             rvHours.visibility = View.VISIBLE
+            sunRise.visibility = View.VISIBLE
+            sunSet.visibility = View.VISIBLE
+            tvSunRise.visibility = View.VISIBLE
+            tvSunSet.visibility = View.VISIBLE
+
+        }
+    }
+
+    private fun insertCashedData(weatherResponse: WeatherResponse){
+        if (sharedViewModel.checkConnection(requireContext())) {
+            sharedViewModel.insertCashedData(weatherResponse)
         }
     }
 }

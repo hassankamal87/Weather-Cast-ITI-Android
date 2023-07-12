@@ -30,11 +30,15 @@
 
         <activity
             android:name=".homeactivity.view.HomeActivity"
-            android:exported="false" />
+            android:screenOrientation="portrait"
+            android:exported="false"
+            tools:ignore="LockedOrientationActivity" />
         <activity
             android:name=".splash.view.MainActivity"
+            android:screenOrientation="portrait"
             android:exported="true"
-            android:theme="@style/Base.splash" >
+            android:theme="@style/Base.splash"
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

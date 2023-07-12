@@ -87,6 +87,54 @@
             app:layout_constraintTop_toBottomOf="@id/tv_date"
             android:visibility="gone"/>
 
+        <ImageView
+            android:id="@+id/sunRise"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:elevation="9dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/sunrise"
+            android:layout_marginStart="80dp"
+            app:layout_constraintStart_toEndOf="@id/iv_weather"
+            app:layout_constraintTop_toTopOf="@id/iv_weather"
+            android:visibility="gone"
+            />
+        <TextView
+            android:id="@+id/tv_sunRise"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/sunRise"
+            app:layout_constraintBottom_toBottomOf="@id/sunRise"
+            android:layout_marginStart="5dp"
+            android:textColor="@color/text_color"
+            android:visibility="gone"
+            />
+
+        <ImageView
+            android:id="@+id/sunSet"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:elevation="9dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/sunset"
+            android:layout_marginStart="80dp"
+            app:layout_constraintStart_toEndOf="@id/iv_weather"
+            app:layout_constraintBottom_toBottomOf="@id/iv_weather"
+            android:layout_marginBottom="10dp"
+            android:visibility="gone"
+            />
+
+        <TextView
+            android:id="@+id/tv_sunSet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/sunSet"
+            app:layout_constraintBottom_toBottomOf="@id/sunSet"
+            android:layout_marginStart="5dp"
+            android:textColor="@color/text_color"
+            android:visibility="gone"
+            />
+
         <TextView
             android:id="@+id/tv_current_degree"
             android:layout_width="wrap_content"
@@ -354,23 +402,22 @@
             android:visibility="gone"/>
 
 
-        <!--    <com.google.android.material.slider.Slider-->
-        <!--        android:id="@+id/slider_degree"-->
-        <!--        android:layout_width="450dp"-->
-        <!--        android:layout_height="wrap_content"-->
-        <!--        android:layout_marginStart="140dp"-->
-        <!--        android:layout_marginTop="350dp"-->
-        <!--        android:enabled="false"-->
-        <!--        android:rotation="270"-->
-        <!--        android:value="30"-->
-        <!--        android:valueFrom="-30.0"-->
-        <!--        android:valueTo="65.0"-->
-        <!--        app:layout_constraintStart_toStartOf="parent"-->
-        <!--        app:layout_constraintTop_toTopOf="parent"-->
-        <!--        app:thumbColor="@color/second_color_yellow"-->
-        <!--        app:thumbElevation="0dp"-->
-        <!--        app:trackColorActive="@color/second_color_yellow"-->
-        <!--        app:trackColorInactive="@color/white" />-->
+<!--            <com.google.android.material.slider.Slider-->
+<!--                android:layout_width="450dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginStart="140dp"-->
+<!--                android:layout_marginTop="350dp"-->
+<!--                android:enabled="false"-->
+<!--                android:rotation="270"-->
+<!--                android:value="30"-->
+<!--                android:valueFrom="-30.0"-->
+<!--                android:valueTo="65.0"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                app:thumbColor="@color/second_color_yellow"-->
+<!--                app:thumbElevation="0dp"-->
+<!--                app:trackColorActive="@color/second_color_yellow"-->
+<!--                app:trackColorInactive="@color/white" />-->
 
         <!--    <TextView-->
         <!--        android:id="@+id/tv_high_degree"-->

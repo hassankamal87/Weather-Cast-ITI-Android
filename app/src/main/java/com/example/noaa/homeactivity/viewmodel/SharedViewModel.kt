@@ -60,7 +60,6 @@ class SharedViewModel(
                 }
             }
         } else {
-            //   _locationStatusMutableStateFlow.value = Constants.SHOW_CASHED_DATA
             getCashedData()
         }
     }

@@ -64,6 +64,54 @@
             app:layout_constraintTop_toBottomOf="@id/tv_date_details"
             android:visibility="gone"/>
 
+        <ImageView
+            android:id="@+id/sunRise_details"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:elevation="9dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/sunrise"
+            android:layout_marginStart="80dp"
+            app:layout_constraintStart_toEndOf="@id/iv_weather_details"
+            app:layout_constraintTop_toTopOf="@id/iv_weather_details"
+            android:visibility="gone"
+            />
+        <TextView
+            android:id="@+id/tv_sunRise_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/sunRise_details"
+            app:layout_constraintBottom_toBottomOf="@id/sunRise_details"
+            android:layout_marginStart="5dp"
+            android:textColor="@color/text_color"
+            android:visibility="gone"
+            />
+
+        <ImageView
+            android:id="@+id/sunSet_details"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:elevation="9dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/sunset"
+            android:layout_marginStart="80dp"
+            app:layout_constraintStart_toEndOf="@id/iv_weather_details"
+            app:layout_constraintBottom_toBottomOf="@id/iv_weather_details"
+            android:layout_marginBottom="10dp"
+            android:visibility="gone"
+            />
+
+        <TextView
+            android:id="@+id/tv_sunSet_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/sunSet_details"
+            app:layout_constraintBottom_toBottomOf="@id/sunSet_details"
+            android:layout_marginStart="5dp"
+            android:textColor="@color/text_color"
+            android:visibility="gone"
+            />
+
         <TextView
             android:id="@+id/tv_current_degree_details"
             android:layout_width="wrap_content"
