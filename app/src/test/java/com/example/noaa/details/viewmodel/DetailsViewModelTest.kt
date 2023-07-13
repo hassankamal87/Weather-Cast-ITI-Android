@@ -10,6 +10,7 @@ import com.example.noaa.model.WeatherResponse
 import com.example.noaa.services.network.ApiState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
@@ -48,7 +49,7 @@ class DetailsViewModelTest {
     }
 
     @Test
-    fun getWeatherDataTest() = runBlockingTest{
+    fun getWeatherDataTest() = runBlocking{
         //when
         detailsViewModel.getWeatherData(coordinate, "en")
 

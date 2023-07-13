@@ -62,7 +62,7 @@ class RepoTest {
         )
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @Test
     fun getWeatherDataTest()= runTest{
         //when
@@ -76,7 +76,7 @@ class RepoTest {
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @Test
     fun getCurrentLocationTest() = runTest{
         //when
@@ -89,7 +89,7 @@ class RepoTest {
 
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @Test
     fun deletePlaceFromFavTest() = runTest{
         //when
@@ -105,7 +105,7 @@ class RepoTest {
 
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @Test
     fun insertPlaceToFavTest() = runTest{
         //when
@@ -121,7 +121,7 @@ class RepoTest {
 
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @Test
     fun getAllFavPlacesTest() = runTest {
         //when
@@ -136,7 +136,7 @@ class RepoTest {
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @Test
     fun insertCashedDataTest()= runTest{
         //when
@@ -150,7 +150,7 @@ class RepoTest {
         repo.deleteCashedData()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @Test
     fun deleteCashedDataTest()= runTest{
         //when
@@ -163,7 +163,7 @@ class RepoTest {
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @Test
     fun getCashedDataTest() = runTest {
         //when
@@ -174,7 +174,7 @@ class RepoTest {
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @Test
     fun getAllAlarmsTest() = runTest {
         //when
@@ -189,7 +189,7 @@ class RepoTest {
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @Test
     fun insertAlarmToDatabaseTest() = runTest{
         //when
@@ -204,7 +204,7 @@ class RepoTest {
         repo.deleteAlarm(alarm1)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @Test
     fun deleteAlarmFromDatabaseTest() = runTest{
         //when

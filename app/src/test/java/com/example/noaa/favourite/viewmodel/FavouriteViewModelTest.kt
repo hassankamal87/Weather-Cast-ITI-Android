@@ -9,6 +9,7 @@ import com.example.noaa.model.Place
 import com.example.noaa.model.RepoInterface
 import com.example.noaa.model.WeatherResponse
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.*
 
@@ -49,9 +50,9 @@ class FavouriteViewModelTest {
     }
 
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @Test
-    fun insertPlaceToFavTest() = runBlockingTest{
+    fun insertPlaceToFavTest() = runBlocking{
         //when
         favouriteViewModel.insertPlaceToFav(place1)
         favouriteViewModel.getAllFavouritePlaces()
@@ -62,14 +63,12 @@ class FavouriteViewModelTest {
 
         //then
         assertTrue(result.contains(place1))
-
-
     }
 
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @Test
-    fun deletePlaceFromFavTest() = runBlockingTest{
+    fun deletePlaceFromFavTest() = runBlocking{
         //when
         favouriteViewModel.insertPlaceToFav(place1)
         favouriteViewModel.deletePlaceFromFav(place1)
@@ -84,7 +83,7 @@ class FavouriteViewModelTest {
     }
 
     @Test
-    fun getAllPlacesTest()= runBlockingTest{
+    fun getAllPlacesTest()= runBlocking{
         //when
         favouriteViewModel.insertPlaceToFav(place1)
         favouriteViewModel.insertPlaceToFav(place2)

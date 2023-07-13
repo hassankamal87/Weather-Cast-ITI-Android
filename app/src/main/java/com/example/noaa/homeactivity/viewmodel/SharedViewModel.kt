@@ -66,16 +66,20 @@ class SharedViewModel(
 
     fun getWeatherData(coordinate: Coordinate, language: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            repo.getWeatherResponse(coordinate, language).catch {
-                _weatherResponseMutableStateFlow.value = ApiState.Failure(it.message!!)
-            }.collect { weatherResponse ->
-                if (weatherResponse.isSuccessful) {
-                    _weatherResponseMutableStateFlow.value =
-                        ApiState.Success(weatherResponse.body()!!)
-                } else {
-                    _weatherResponseMutableStateFlow.value =
-                        ApiState.Failure(weatherResponse.message())
+            try {
+                repo.getWeatherResponse(coordinate, language).catch {
+                    _weatherResponseMutableStateFlow.value = ApiState.Failure(it.message!!)
+                }.collect { weatherResponse ->
+                    if (weatherResponse.isSuccessful) {
+                        _weatherResponseMutableStateFlow.value =
+                            ApiState.Success(weatherResponse.body()!!)
+                    } else {
+                        _weatherResponseMutableStateFlow.value =
+                            ApiState.Failure(weatherResponse.message())
+                    }
                 }
+            }catch (_:Exception){
+                repo.getCashedData()
             }
         }
     }
@@ -87,7 +91,7 @@ class SharedViewModel(
         }
     }
 
-    fun insertCashedData( weatherResponse: WeatherResponse) {
+    fun insertCashedData(weatherResponse: WeatherResponse) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.insertCashedData(weatherResponse)
         }
@@ -98,8 +102,9 @@ class SharedViewModel(
             repo.getCashedData()?.collect {
                 try {
                     _weatherResponseMutableStateFlow.value = ApiState.Success(it)
-                }catch (_:Exception){
-                    _weatherResponseMutableStateFlow.value = ApiState.Failure("No Internet Connection")
+                } catch (_: Exception) {
+                    _weatherResponseMutableStateFlow.value =
+                        ApiState.Failure("No Internet Connection")
                 }
             }
         }
@@ -109,19 +114,19 @@ class SharedViewModel(
         return PermissionUtility.checkConnection(context)
     }
 
-    fun writeStringToSettingSP(key: String, value: String){
-       repo.writeStringToSettingSP(key, value)
+    fun writeStringToSettingSP(key: String, value: String) {
+        repo.writeStringToSettingSP(key, value)
     }
 
-    fun readStringFromSettingSP(key: String): String{
+    fun readStringFromSettingSP(key: String): String {
         return repo.readStringFromSettingSP(key)
     }
 
-    fun writeFloatToSettingSP(key: String, value: Float){
+    fun writeFloatToSettingSP(key: String, value: Float) {
         repo.writeFloatToSettingSP(key, value)
     }
 
-    fun readFloatFromSettingSP(key: String): Float{
+    fun readFloatFromSettingSP(key: String): Float {
         return repo.readFloatFromSettingSP(key)
     }
 

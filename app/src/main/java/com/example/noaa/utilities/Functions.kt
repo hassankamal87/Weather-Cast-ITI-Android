@@ -90,7 +90,7 @@ object Functions {
         calendar.set(Calendar.MINUTE, minute)
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
-        val dateFormat = SimpleDateFormat("hh:mm a", Locale.US)
+        val dateFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
         return dateFormat.format(calendar.time)
     }
 

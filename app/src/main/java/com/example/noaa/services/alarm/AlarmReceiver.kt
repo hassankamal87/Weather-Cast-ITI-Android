@@ -161,6 +161,7 @@ class AlarmReceiver : BroadcastReceiver() {
         alarmItem: AlarmItem
     ): String {
         var mes = "null"
+        try {
         if (PermissionUtility.checkConnection(context)) {
             RemoteSource.getWeatherResponse(
                 Coordinate(alarmItem.latitude, alarmItem.longitude), "en"
@@ -169,6 +170,8 @@ class AlarmReceiver : BroadcastReceiver() {
                     mes = weatherData.body()!!.alerts?.get(0)?.description ?: "null"
                 }
             }
+        }}catch (_:Exception){
+            mes = "null"
         }
         return mes
     }
